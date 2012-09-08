@@ -5,7 +5,7 @@ import os, sys, json, urllib2, ConfigParser, time, commands
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui import MainWindow, Settings, NewPost, About, Stat
-from lib import database, list_handler, list_item
+from lib import database, list_handler, list_item, common
 from identiparse import connector
 import pynotify
 
@@ -62,6 +62,8 @@ class Denter_Form(QMainWindow):
         self.ui.statusbar.hide()
 
         self.appVersion = "0.1-dev"
+        
+        common.set_qtdenter_path()
 
         self._hidden = 0
         self.inserted_dents_ids = []
@@ -69,7 +71,7 @@ class Denter_Form(QMainWindow):
         self._changed_credentials = False
         
         # Tray icon
-        self.trayIcon = QSystemTrayIcon(QIcon("ui/imgs/trayicon.png"), self)
+        self.trayIcon = QSystemTrayIcon(QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"), self)
         self.trayIcon.setVisible(True)
         self.connect(self.trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.check_for_visibility)
         
