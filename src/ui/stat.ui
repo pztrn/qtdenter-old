@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Micro Blog Client - Statistics</string>
+   <string>QTDenter - Statistics</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sat Sep  8 02:02:16 2012
+# Created: Sat Sep  8 09:11:31 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,12 +40,12 @@ class Ui_MainWindow(object):
         self.timeline_list.setAlternatingRowColors(True)
         self.timeline_list.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.timeline_list.setIconSize(QtCore.QSize(64, 64))
-        self.timeline_list.setTextElideMode(QtCore.Qt.ElideLeft)
+        self.timeline_list.setTextElideMode(QtCore.Qt.ElideRight)
         self.timeline_list.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.timeline_list.setIndentation(0)
         self.timeline_list.setUniformRowHeights(False)
         self.timeline_list.setAnimated(True)
-        self.timeline_list.setWordWrap(True)
+        self.timeline_list.setWordWrap(False)
         self.timeline_list.setObjectName(_fromUtf8("timeline_list"))
         self.timeline_list.header().setVisible(False)
         self.timeline_list.header().setDefaultSectionSize(100)
@@ -96,11 +96,12 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Denter", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "QTDenter", None, QtGui.QApplication.UnicodeUTF8))
         self.timeline_list.setSortingEnabled(True)
-        self.timeline_list.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "Dent", None, QtGui.QApplication.UnicodeUTF8))
-        self.timeline_list.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "dent_id", None, QtGui.QApplication.UnicodeUTF8))
-        self.timeline_list.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "denter_screen_name", None, QtGui.QApplication.UnicodeUTF8))
+        self.timeline_list.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "Avatar", None, QtGui.QApplication.UnicodeUTF8))
+        self.timeline_list.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "Dent", None, QtGui.QApplication.UnicodeUTF8))
+        self.timeline_list.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "dent_id", None, QtGui.QApplication.UnicodeUTF8))
+        self.timeline_list.headerItem().setText(3, QtGui.QApplication.translate("MainWindow", "denter_screen_name", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Timeline", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Timelines.setTitle(QtGui.QApplication.translate("MainWindow", "&Timelines", None, QtGui.QApplication.UnicodeUTF8))
@@ -109,6 +110,6 @@ class Ui_MainWindow(object):
         self.action_Options.setText(QtGui.QApplication.translate("MainWindow", "&Options", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Exit.setText(QtGui.QApplication.translate("MainWindow", "&Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Update_all.setText(QtGui.QApplication.translate("MainWindow", "&Update all", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_About_Denter.setText(QtGui.QApplication.translate("MainWindow", "&About Denter...", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_About_Denter.setText(QtGui.QApplication.translate("MainWindow", "&About QTDenter...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatistics.setText(QtGui.QApplication.translate("MainWindow", "Statistics...", None, QtGui.QApplication.UnicodeUTF8))
 

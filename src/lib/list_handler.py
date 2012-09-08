@@ -22,6 +22,8 @@ class List_Handler(QThread):
                 item_data["source"] = item["user"]["statusnet_profile_url"].split(":")[1][2:].split("/")[0]
             else:
                 item_data["source"] = item["source"]
+                
+            item_data["in_favorites"] = item["favorited"]
             
             self.download_avatar(item["user"]["profile_image_url"], item["user"]["screen_name"])
             

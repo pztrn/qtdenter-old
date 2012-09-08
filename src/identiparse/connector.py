@@ -23,6 +23,36 @@ class Requester():
         except urllib2.HTTPError, e:
             return e
             
+    def defavoritize_dent(self, dent_id, version):
+        request = urllib2.Request(self._api_url + "/favorites/destroy/{0}.json".format(dent_id))
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        print "DEFAVORITIZE REQUEST FORMED"
+        
+        try:
+            result = urllib2.urlopen(request, "")
+            result = result.read()
+        
+            return json.loads(result)
+        except:
+            return "FAIL"
+            
+    def favoritize_dent(self, dent_id, version):
+        request = urllib2.Request(self._api_url + "/favorites/create/{0}.json".format(dent_id))
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        print "FAVORITIZE REQUEST FORMED"
+        
+        try:
+            result = urllib2.urlopen(request, "")
+            result = result.read()
+        
+            return json.loads(result)
+        except:
+            return "FAIL"
+            
     def post_dent(self, text, version):
         data = {"status": text, "source": "QTDenter"}
         encoded_data = urlencode(data)
@@ -38,6 +68,22 @@ class Requester():
         result = result.read()
         
         return json.loads(result)
+        
+    def redent_dent(self, dent_id, version):
+        data = {"id": dent_id}
+        encoded_data = urlencode(data)
+        print "DATA ENCODED"
+        
+        request = urllib2.Request(self._api_url + "statuses/retweet/{0}.json".format(dent_id), encoded_data)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        print "REQUEST FORMED"
+        
+        result = urllib2.urlopen(request, encoded_data)
+        result = result.read()
+        
+        return json.loads(result)        
 
     def get_home_timeline(self):
         print "START"

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Denter</string>
+   <string>QTDenter</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
@@ -70,7 +70,7 @@
            </size>
           </property>
           <property name="textElideMode">
-           <enum>Qt::ElideLeft</enum>
+           <enum>Qt::ElideRight</enum>
           </property>
           <property name="verticalScrollMode">
            <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -88,7 +88,7 @@
            <bool>true</bool>
           </property>
           <property name="wordWrap">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <attribute name="headerVisible">
            <bool>false</bool>
@@ -191,7 +191,7 @@
   </action>
   <action name="action_About_Denter">
    <property name="text">
-    <string>&amp;About Denter...</string>
+    <string>&amp;About QTDenter...</string>
    </property>
   </action>
   <action name="actionStatistics">

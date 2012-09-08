@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'stat.ui'
 #
-# Created: Sat Feb  4 09:14:51 2012
-#      by: PyQt4 UI code generator 4.9
+# Created: Sat Sep  8 09:08:23 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -119,7 +119,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Micro Blog Client - Statistics", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "QTDenter - Statistics", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("Dialog", "Application", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Application version:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Application revision:", None, QtGui.QApplication.UnicodeUTF8))

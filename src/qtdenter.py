@@ -166,7 +166,7 @@ class Denter_Form(QMainWindow):
         self.ui.timeline_list.sortByColumn(2, Qt.DescendingOrder)
         self.ui.timeline_list.setColumnHidden(2, True)
         self.ui.timeline_list.setColumnHidden(3, True)
-        self.ui.timeline_list.setColumnWidth(0, 50)
+        self.ui.timeline_list.setColumnWidth(0, 65)
         
         # Init notifications
         try:
@@ -212,16 +212,17 @@ class Denter_Form(QMainWindow):
         elif list_type == "home_avatar":
             self.update_timeline_avatar(data)
         elif list_type == "end":
-            curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+            curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             self.time_updated_action.setText("<b>Last updated on: {0}</b>".format(curtime))
             
             # Notifications
-            notify = pynotify.Notification("qtdenter", "{0} new dents arrived.".format(self._new_dents), None)
-            notify.set_urgency(pynotify.URGENCY_NORMAL)
-            notify.set_timeout(pynotify.EXPIRES_NEVER)
-            notify.add_action("clicked","Show QTDenter", self.show_window, None)
-            notify.show()
-            self._new_dents = 0
+            if self._new_dents > 0:
+                notify = pynotify.Notification("qtdenter", "{0} new dents arrived.".format(self._new_dents), None)
+                notify.set_urgency(pynotify.URGENCY_NORMAL)
+                notify.set_timeout(10000)
+                notify.add_action("clicked","Show QTDenter", self.show_window, None)
+                notify.show()
+                self._new_dents = 0
             
             
     def add_to_timeline_iterator(self, data):
@@ -234,36 +235,109 @@ class Denter_Form(QMainWindow):
                     
     def add_to_timeline(self, data):
         post_data = QLabel()
-        avatar_data = QLabel()
-        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><br/>{1}<br/><br/><span style='font-size:8pt;'>id {3}, from {4}".format(data["nickname"], data["text"], data["date"], data["id"], data["source"])))
+        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p><span style='font-size:8pt;'>id {3}, from {4}".format(data["nickname"], data["text"], data["date"], data["id"], data["source"])))
         post_data.setWordWrap(True)
         post_data.setAlignment(Qt.AlignTop)
         post_data.setOpenExternalLinks(True)
-        post_data.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        self.ui.timeline_list.update()
-        post_data.setMinimumSize(300, 64)
-        item = QTreeWidgetItem()
+        post_height = post_data.sizeHint().height()
+        #print post_data.width(), post_height
+        post_data.setMinimumWidth(300)
+        post_data.setMaximumWidth(6000)
+        post_data.setMaximumHeight(post_height)
+        #post_data.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.MinimumExpanding)
+
+        post_data_layout = QVBoxLayout()
+        post_data_layout.addWidget(post_data)
+        post_data_layout.setContentsMargins(3, 0, 0, 0)
         
+        # Poster avatar and post actions
+        avatar_data = QLabel()
         extension = data["avatar"].split(".")[-1:][0]
         avatar = os.path.expanduser("~/.local/share/qtdenter/avatars/") + "%s.%s" % (data["nickname"], extension)
         avatar_data.setText("<img src='{0}' height=48 width=48 />".format(avatar))
         avatar_data.setMinimumSize(0, 0)
         avatar_data.setMaximumSize(48, 48)
-        avatar_data.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        avatar_data.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.MinimumExpanding)
+        
+        like_button = QPushButton()
+        if data["in_favorites"]:
+            like_button.setText("X")
+            like_button.setToolTip("De-Favoritize")
+        else:
+            like_button.setText(u"\u2665")
+            like_button.setToolTip("Favoritize")
+        like_button.setFlat(True)
+        like_button.setFixedSize(18, 18)
+        like_button.clicked.connect(self.like_dent)
+        like_button.setObjectName("like_button_" + str(data["id"]))
+        
+        
+        redent_button = QPushButton()
+        redent_button.setText(u"\u267a")
+        redent_button.setFlat(True)
+        redent_button.setFixedSize(18, 18)
+        redent_button.clicked.connect(self.redent_dent)
+        
+        buttons_layout = QHBoxLayout()
+        buttons_layout.addWidget(like_button)
+        buttons_layout.addWidget(redent_button)
+        buttons_layout.setContentsMargins(1, 0, 0, 0)
+        
+        buttons_widget = QWidget()
+        buttons_widget.setLayout(buttons_layout)
+        
+        post_avatar_layout = QVBoxLayout()
+        post_avatar_layout.addWidget(avatar_data)
+        post_avatar_layout.addWidget(buttons_widget)
+        
+        post_avatar_widget = QWidget()
+        post_avatar_widget.setLayout(post_avatar_layout)
+        
+        post_data_widget = QWidget()
+        post_data_widget.setLayout(post_data_layout)
+        
+
+        item = QTreeWidgetItem()
+        
         item.setText(2, str(data["id"]))
-        item.setText(3, data["nickname"])
+        if data["in_favorites"]:
+            item.setText(3, "favorited")
+        else:
+            item.setText(3, "not")
         
         self.ui.timeline_list.addTopLevelItem(item)
-        self.ui.timeline_list.setItemWidget(item, 0, avatar_data)
-        self.ui.timeline_list.setItemWidget(item, 1, post_data)
+        self.ui.timeline_list.setItemWidget(item, 0, post_avatar_widget)
+        self.ui.timeline_list.setItemWidget(item, 1, post_data_widget)
         
     def update_timeline_avatar(self, name):
         print name
+        
+    def like_dent(self):
+        item = self.ui.timeline_list.currentItem()
+        dent_id = self.ui.timeline_list.currentItem().text(2)
+        if self.ui.timeline_list.currentItem().text(3) == "not":
+            data = self.auth.favoritize_dent(dent_id, VERSION)
+            if data != "FAIL":
+                btn = self.ui.timeline_list.findChild(QPushButton, "like_button_" + dent_id)
+                #btn.findChild(QPushButton, u"\u267a")
+                self.ui.timeline_list.currentItem().setText(3, "favorited")
+                btn.setText("X")
+        else:
+            data = self.auth.defavoritize_dent(dent_id, VERSION)
+            if data != "FAIL":
+                btn = self.ui.timeline_list.findChild(QPushButton, "like_button_" + dent_id)
+                btn.findChild(QPushButton, "X")
+                self.ui.timeline_list.currentItem().setText(3, "not")
+                btn.setText(u"\u2665")
+        
+    def redent_dent(self):
+        dent_id = self.ui.timeline_list.currentItem().text(2)
+        self.auth.redent_dent(dent_id, VERSION)
 
     def post_status(self, data):
         data = self.auth.post_dent(data, VERSION)
         self.list_handler.add_data("home", [data])
-
+        
     def post_status_dialog(self):
         newpostD = NewPostDialog(self.settings["messageLength"], None)
         newpostD.exec_()
