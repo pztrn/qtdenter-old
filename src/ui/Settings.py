@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'settings.ui'
 #
-# Created: Sat Feb  4 07:27:31 2012
-#      by: PyQt4 UI code generator 4.9
+# Created: Sat Sep  8 23:30:11 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -100,7 +100,7 @@ class Ui_Dialog(object):
         self.updateInterval.setFrame(True)
         self.updateInterval.setAccelerated(False)
         self.updateInterval.setPrefix(_fromUtf8(""))
-        self.updateInterval.setMinimum(5)
+        self.updateInterval.setMinimum(1)
         self.updateInterval.setMaximum(1000)
         self.updateInterval.setObjectName(_fromUtf8("updateInterval"))
         self.formLayout_2.setWidget(1, QtGui.QFormLayout.FieldRole, self.updateInterval)

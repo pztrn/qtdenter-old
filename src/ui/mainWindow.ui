@@ -116,6 +116,11 @@
             <string>denter_screen_name</string>
            </property>
           </column>
+          <column>
+           <property name="text">
+            <string>dent_text</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>

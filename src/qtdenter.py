@@ -124,6 +124,7 @@ class Denter_Form(QMainWindow):
         self.ui.actionStatistics.triggered.connect(self.show_statistics)
 
         self.connect(self, SIGNAL("PostData(PyQt_PyObject)"), self.post_status)
+        self.connect(self, SIGNAL("SendReply(PyQt_PyObject)"), self.send_reply)
         self.connect(self, SIGNAL("ChangeSettings(PyQt_PyObject)"), self.change_settings)
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("HideForm()"), self.check_for_visibility)
@@ -164,9 +165,10 @@ class Denter_Form(QMainWindow):
             
         self.ui.timeline_list.setSortingEnabled(True)
         self.ui.timeline_list.sortByColumn(2, Qt.DescendingOrder)
-        self.ui.timeline_list.setColumnHidden(2, True)
-        self.ui.timeline_list.setColumnHidden(3, True)
+        for column in range(2, 5):
+            self.ui.timeline_list.setColumnHidden(column, True)
         self.ui.timeline_list.setColumnWidth(0, 65)
+        self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
         
         # Init notifications
         try:
@@ -299,11 +301,13 @@ class Denter_Form(QMainWindow):
 
         item = QTreeWidgetItem()
         
-        item.setText(2, str(data["id"]))
+        item.setText(2, str(data["id"]) + ":" + data["nickname"])
         if data["in_favorites"]:
             item.setText(3, "favorited")
         else:
             item.setText(3, "not")
+            
+        item.setText(4, data["text"])
         
         self.ui.timeline_list.addTopLevelItem(item)
         self.ui.timeline_list.setItemWidget(item, 0, post_avatar_widget)
@@ -314,7 +318,7 @@ class Denter_Form(QMainWindow):
         
     def like_dent(self):
         item = self.ui.timeline_list.currentItem()
-        dent_id = self.ui.timeline_list.currentItem().text(2)
+        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
         if self.ui.timeline_list.currentItem().text(3) == "not":
             data = self.auth.favoritize_dent(dent_id, VERSION)
             if data != "FAIL":
@@ -331,12 +335,27 @@ class Denter_Form(QMainWindow):
                 btn.setText(u"\u2665")
         
     def redent_dent(self):
-        dent_id = self.ui.timeline_list.currentItem().text(2)
+        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
         self.auth.redent_dent(dent_id, VERSION)
 
     def post_status(self, data):
         data = self.auth.post_dent(data, VERSION)
         self.list_handler.add_data("home", [data])
+        
+    def send_reply(self, data):
+        data = self.auth.send_reply(data, VERSION)
+        self.list_handler.add_data("home", [data])
+        
+    def reply_to_dent(self):
+        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+        to_username = self.ui.timeline_list.currentItem().text(2).split(":")[1]
+        dent_text = self.ui.timeline_list.currentItem().text(4)
+        params = {}
+        params["reply_to_id"] = dent_id
+        params["nickname"] = to_username
+        params["text"] = dent_text
+        newpostD = NewPostDialog(self.settings["messageLength"], params)
+        newpostD.exec_()
         
     def post_status_dialog(self):
         newpostD = NewPostDialog(self.settings["messageLength"], None)
@@ -420,14 +439,20 @@ class Denter_Form(QMainWindow):
             event.ignore()
 
 class NewPostDialog(QDialog):
-    def __init__(self, messageLength, nickname, parent = None):
+    def __init__(self, messageLength, parameters, parent = None):
         QDialog.__init__(self, parent)
         self.ui = NewPost.Ui_Dialog()
         self.ui.setupUi(self)
 
         self.messageLength = int(messageLength)
-        if nickname:
-            self.ui.postData.appendPlainText(nickname + " ")
+        self.reply = False
+        
+        if parameters:
+            print "PARAMS"
+            self.params = parameters
+            self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
+            self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
+            self.reply = True
 
         self._messageIsTooLong = 0
 
@@ -447,10 +472,16 @@ class NewPostDialog(QDialog):
 
     def postData(self):
         if self._messageIsTooLong == 1:
-            QMessageBox.critical(self, self.tr("New post - Message is too long"), self.tr("Message you entered is too long. Maximum message length is {0} symbols, you entered {1} symbols.").format(str(self.messageLength)).arg(str(self.textLenght)))
+            QMessageBox.critical(self, self.tr("New post - Message is too long"), self.tr("Message you entered is too long. Maximum message length is {0} symbols, you entered {1} symbols.").format(str(self.messageLength), str(self.textLenght)))
         else:
             try:
-                mbc.emit(SIGNAL("PostData(PyQt_PyObject)"), str(QString.toUtf8(self.ui.postData.toPlainText())))
+                if self.reply:
+                    data = {}
+                    data["text"] = self.ui.postData.toPlainText()
+                    data["reply_to_id"] = self.params["reply_to_id"]
+                    mbc.emit(SIGNAL("SendReply(PyQt_PyObject)"), data)
+                else:
+                    mbc.emit(SIGNAL("PostData(PyQt_PyObject)"), str(QString.toUtf8(self.ui.postData.toPlainText())))
             except:
                 print "FAILED TO SIGNAL!"
 

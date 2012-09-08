@@ -34,6 +34,7 @@ class Requester():
             result = urllib2.urlopen(request, "")
             result = result.read()
         
+            print "DEFAVORITIZED"
             return json.loads(result)
         except:
             return "FAIL"
@@ -49,6 +50,7 @@ class Requester():
             result = urllib2.urlopen(request, "")
             result = result.read()
         
+            print "FAVORITIZED"
             return json.loads(result)
         except:
             return "FAIL"
@@ -83,7 +85,23 @@ class Requester():
         result = urllib2.urlopen(request, encoded_data)
         result = result.read()
         
-        return json.loads(result)        
+        return json.loads(result)
+        
+    def send_reply(self, data, version):
+        data={"status": data["text"],"source": "QTDenter", "in_reply_to_status_id": data["reply_to_id"]}
+        encoded_data = urlencode(data)
+        print "DATA ENCODED"
+        
+        request = urllib2.Request(self._api_url + "statuses/update.json", encoded_data)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        print "REQUEST FORMED"
+        
+        result = urllib2.urlopen(request, encoded_data)
+        result = result.read()
+        
+        return json.loads(result)
 
     def get_home_timeline(self):
         print "START"
