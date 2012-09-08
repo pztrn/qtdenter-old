@@ -54,6 +54,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="mouseTracking">
+           <bool>true</bool>
+          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked</set>
           </property>
@@ -79,6 +82,9 @@
            <number>0</number>
           </property>
           <property name="uniformRowHeights">
+           <bool>false</bool>
+          </property>
+          <property name="itemsExpandable">
            <bool>false</bool>
           </property>
           <property name="sortingEnabled">

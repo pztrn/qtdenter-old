@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sat Sep  8 23:52:24 2012
+# Created: Sun Sep  9 03:33:01 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,6 +36,7 @@ class Ui_MainWindow(object):
         self.timeline_list = QtGui.QTreeWidget(self.tab)
         self.timeline_list.setMinimumSize(QtCore.QSize(0, 0))
         self.timeline_list.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.timeline_list.setMouseTracking(True)
         self.timeline_list.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged|QtGui.QAbstractItemView.DoubleClicked)
         self.timeline_list.setAlternatingRowColors(True)
         self.timeline_list.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
@@ -44,6 +45,7 @@ class Ui_MainWindow(object):
         self.timeline_list.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.timeline_list.setIndentation(0)
         self.timeline_list.setUniformRowHeights(False)
+        self.timeline_list.setItemsExpandable(False)
         self.timeline_list.setAnimated(True)
         self.timeline_list.setWordWrap(False)
         self.timeline_list.setObjectName(_fromUtf8("timeline_list"))

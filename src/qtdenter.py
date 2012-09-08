@@ -171,6 +171,7 @@ class Denter_Form(QMainWindow):
             self.ui.timeline_list.setColumnHidden(column, True)
         self.ui.timeline_list.setColumnWidth(0, 65)
         self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
+        self.ui.timeline_list.connect(self.ui.timeline_list, SIGNAL("itemEntered(QTreeWidgetItem, int)"), self.set_current_item)
         
         # Init notifications
         try:
@@ -239,7 +240,7 @@ class Denter_Form(QMainWindow):
                     
     def add_to_timeline(self, data):
         post_data = QLabel()
-        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p><span style='font-size:8pt;'>id {3}, from {4}".format(data["nickname"], data["text"], data["date"], data["id"], data["source"])))
+        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p>".format(data["nickname"], data["text"], data["date"])))
         post_data.setWordWrap(True)
         post_data.setAlignment(Qt.AlignTop)
         post_data.setOpenExternalLinks(True)
@@ -248,11 +249,12 @@ class Denter_Form(QMainWindow):
         post_data.setMinimumWidth(300)
         post_data.setMaximumWidth(6000)
         post_data.setMaximumHeight(post_height)
-        #post_data.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.MinimumExpanding)
+        post_data.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         post_data_layout = QVBoxLayout()
         post_data_layout.addWidget(post_data)
         post_data_layout.setContentsMargins(3, 0, 0, 0)
+        post_data_layout.setAlignment(Qt.AlignTop)
         
         # Poster avatar and post actions
         avatar_data = QLabel()
@@ -270,29 +272,27 @@ class Denter_Form(QMainWindow):
         else:
             like_button.setText(u"\u2665")
             like_button.setToolTip("Favoritize")
-        like_button.setFlat(True)
-        like_button.setFixedSize(18, 18)
+        #like_button.setFlat(True)
+        like_button.setFixedSize(32, 32)
         like_button.clicked.connect(self.like_dent)
         like_button.setObjectName("like_button_" + str(data["id"]))
         
-        
         redent_button = QPushButton()
         redent_button.setText(u"\u267a")
-        redent_button.setFlat(True)
-        redent_button.setFixedSize(18, 18)
+        #redent_button.setFlat(True)
+        redent_button.setFixedSize(32, 32)
         redent_button.clicked.connect(self.redent_dent)
         
         buttons_layout = QHBoxLayout()
         buttons_layout.addWidget(like_button)
         buttons_layout.addWidget(redent_button)
-        buttons_layout.setContentsMargins(1, 0, 0, 0)
+        buttons_layout.setContentsMargins(0, 0, 0, 0)
         
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons_layout)
         
         post_avatar_layout = QVBoxLayout()
         post_avatar_layout.addWidget(avatar_data)
-        post_avatar_layout.addWidget(buttons_widget)
         
         post_avatar_widget = QWidget()
         post_avatar_widget.setLayout(post_avatar_layout)
@@ -300,7 +300,38 @@ class Denter_Form(QMainWindow):
         post_data_widget = QWidget()
         post_data_widget.setLayout(post_data_layout)
         
+        # Some underpost buttons
+        dentid_button = QPushButton()
+        dentid_button.setText("id " + str(data["id"]))
+        dentid_button.setObjectName("dentid_button_" + str(data["id"]))
+        dentid_button.setFixedHeight(20)
+        #dentid_button.setFixedWidth()
+        dentid_button.clicked.connect(self.go_to_dent)
+        dentid_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        
+        source = QLabel()
+        source.setText("<span style='font-size:8pt;'>from {0}".format(data["source"]))
+        source.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.MinimumExpanding)
+        source.setWordWrap(True)
+        
+        post_info_layout = QVBoxLayout()
+        post_info_layout.addWidget(dentid_button)
+        post_info_layout.addWidget(source)
+        post_info_layout.addWidget(buttons_widget)
+        post_info_layout.setAlignment(Qt.AlignRight)
+        
+        post_info_widget = QWidget()
+        post_info_widget.setLayout(post_info_layout)
+        post_info_widget.setFixedWidth(100)
 
+        # Final post widget
+        post_layout = QHBoxLayout()
+        post_layout.addWidget(post_data_widget)
+        post_layout.addWidget(post_info_widget)
+        
+        post_widget = QWidget()
+        post_widget.setLayout(post_layout)
+        
         item = QTreeWidgetItem()
         
         item.setText(2, str(data["id"]) + ":" + data["nickname"])
@@ -313,7 +344,7 @@ class Denter_Form(QMainWindow):
         
         self.ui.timeline_list.addTopLevelItem(item)
         self.ui.timeline_list.setItemWidget(item, 0, post_avatar_widget)
-        self.ui.timeline_list.setItemWidget(item, 1, post_data_widget)
+        self.ui.timeline_list.setItemWidget(item, 1, post_widget)
         
     def update_timeline_avatar(self, name):
         print name
@@ -362,6 +393,25 @@ class Denter_Form(QMainWindow):
     def post_status_dialog(self):
         newpostD = NewPostDialog(self.settings["messageLength"], None)
         newpostD.exec_()
+        
+    def go_to_dent(self):
+        try:
+            item = self.ui.timeline_list.currentItem()
+        except:
+            QMessageBox.error(self, "QTDenter - Choose fent first!", "You have to choose dent")
+        
+        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+        
+        server_address = self.settings["server"]
+        if self.settings["useSecureConnection"] == 1:
+            server_address = "https://" + server_address
+        else:
+            server_address = "http://" + server_address
+        
+        QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
+        
+    def set_current_item(self, item, column):
+        print item, column
 
     def check_for_visibility(self):
         if self._hidden == 0:
