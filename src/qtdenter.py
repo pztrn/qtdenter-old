@@ -292,7 +292,7 @@ class Denter_Form(QMainWindow):
             
             # Notifications
             if self._new_direct_messages > 0:
-                notify = pynotify.Notification("qtdenter", "{0} new dents arrived.".format(self._new_direct_messages), None)
+                notify = pynotify.Notification("QTDenter", "{0} new dents arrived.".format(self._new_direct_messages), common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
                 notify.set_urgency(pynotify.URGENCY_NORMAL)
                 notify.set_timeout(10000)
                 notify.add_action("clicked","Show QTDenter", self.show_window, None)
