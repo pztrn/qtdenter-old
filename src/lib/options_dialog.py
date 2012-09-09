@@ -21,15 +21,6 @@ class Options_Dialog(QDialog):
             self.ui.useSecureConnectionCheckbox.setCheckState(2)
         else:
             self.ui.useSecureConnectionCheckbox.setCheckState(0)
-        if self.settings["isSingle"] == "1":
-            self.ui.suiCheckbox.setCheckState(2)
-            self.ui.mllabel.setEnabled(True)
-            self.ui.messageLength.setEnabled(True)
-        else:
-            self.ui.suiCheckbox.setCheckState(0)
-            self.ui.mllabel.setEnabled(False)
-            self.ui.messageLength.setEnabled(False)
-        self.ui.messageLength.setText(self.settings["messageLength"])
         if self.settings["deleteAllFromCacheOnExit"] == "1":
             self.ui.removePostsOnExitCheckbox.setCheckState(2)
         else:
@@ -51,7 +42,6 @@ class Options_Dialog(QDialog):
         self.ui.okButton.clicked.connect(self.transmitSettings)
         self.ui.cancelButton.clicked.connect(self.close)
         
-        self.ui.suiCheckbox.stateChanged.connect(self.changing_sui_state)
         self.ui.remember_last_dentid.stateChanged.connect(self.changing_rld_state)
         
         # Now Playing
@@ -65,12 +55,6 @@ class Options_Dialog(QDialog):
         except:
             # No config values, passing
             pass
-        
-    def changing_sui_state(self):
-        if self.ui.suiCheckbox.checkState() == 0:
-            self.ui.messageLength.setEnabled(False)
-        else:
-            self.ui.messageLength.setEnabled(True)
             
     def changing_rld_state(self):
         if self.ui.remember_last_dentid.checkState() == 2:
@@ -87,14 +71,6 @@ class Options_Dialog(QDialog):
             settingslist.append(str(1))
         else:
             settingslist.append(str(0))
-        if self.ui.suiCheckbox.isChecked():
-            settingslist.append(str(1))
-        else:
-            settingslist.append(str(0))
-        if self.ui.messageLength.text():
-            settingslist.append(str(self.ui.messageLength.text()))
-        else:
-            settingslist.append(str(140))
         if self.ui.removePostsOnExitCheckbox.isChecked():
             settingslist.append(str(1))
         else:

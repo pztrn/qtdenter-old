@@ -206,3 +206,20 @@ class Requester():
             return data
         except urllib2.HTTPError, e:
             self.callback("bad_credentials")
+
+    def get_server_config(self, type):
+        if type == "config":
+            url = self._api_url + "statusnet/config.json"
+        elif type == "version":
+            url = self._api_url + "statusnet/version.json"
+        
+        request = urllib2.Request(url)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        try:
+            result = urllib2.urlopen(request)
+            data = json.loads(result.read())
+
+            return data
+        except urllib2.HTTPError, e:
+            self.callback("bad_credentials")

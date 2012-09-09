@@ -5,7 +5,7 @@ import os, sys, json, urllib2, ConfigParser, time, commands
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui import MainWindow, NewPost, About, Stat
-from lib import database, list_handler, list_item, common, options_dialog
+from lib import database, list_handler, list_item, common, options_dialog, information
 from addons import now_playing
 from identiparse import connector
 import pynotify
@@ -114,11 +114,6 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "denter - No accounts", "Setup an account in Options!")
 
         try:
-            self.settings["messageLength"] = self.qsettings.value("messageLength").toString()
-        except:
-            self.settings["messageLength"] = "140"
-
-        try:
             self.restoreGeometry(self.qsettings.value("geometry").toByteArray())
             self.restoreState(self.qsettings.value("state").toByteArray())
         except:
@@ -144,7 +139,7 @@ class Denter_Form(QMainWindow):
         self.ui.action_Options.triggered.connect(self.show_options_dialog)
         self.ui.action_Exit.triggered.connect(self.close_from_menu)
         self.ui.action_About_Denter.triggered.connect(self.show_about)
-        self.ui.actionStatistics.triggered.connect(self.show_statistics)
+        self.ui.actionStatistics.triggered.connect(self.show_information)
         self.ui.actionSpam_Music_data.triggered.connect(self.spam_music)
 
         self.connect(self, SIGNAL("PostData(PyQt_PyObject)"), self.post_status)
@@ -245,7 +240,13 @@ class Denter_Form(QMainWindow):
         # Init timer
         self.start_timer(self.settings["updateInterval"])
         self.np = now_playing.Now_Playing(self.settings["player"], self.settings["player_string"])
-        self.np.get_clementine_song()
+        
+        # Get max characters count from server
+        try:
+            server_data = self.auth.get_server_config("config")
+            self.settings["messageLength"] = server_data["site"]["textlimit"]
+        except:
+            self.settings["messageLength"] = "140"
         
     def init_connector(self):
         self.auth = connector.Requester(self.settings["user"], self.settings["password"], self.settings["server"] + "/api/", self.settings["useSecureConnection"], self.connect_callback)
@@ -518,14 +519,12 @@ class Denter_Form(QMainWindow):
         self.settings["password"] = data[1]
         self.settings["server"] = data[2]
         self.settings["useSecureConnection"] = data[3]
-        self.settings["isSingle"] = data[4]
-        self.settings["messageLength"] = data[5]
-        self.settings["deleteAllFromCacheOnExit"] = data[6]
-        self.settings["updateInterval"] = data[7]
-        self.settings["remember_last_dent_id"] = data[8]
-        self.settings["fetch_on_startup"] = data[9]
-        self.settings["player"] = data[10]
-        self.settings["player_string"] = data[11]
+        self.settings["deleteAllFromCacheOnExit"] = data[4]
+        self.settings["updateInterval"] = data[5]
+        self.settings["remember_last_dent_id"] = data[6]
+        self.settings["fetch_on_startup"] = data[7]
+        self.settings["player"] = data[8]
+        self.settings["player_string"] = data[9]
         self.init_connector()
         self.start_timer(self.settings["updateInterval"])
         
@@ -540,9 +539,11 @@ class Denter_Form(QMainWindow):
         aboutW.ui.setupUi(aboutW)
         aboutW.exec_()
 
-    def show_statistics(self):
-        statD = StatisticsDialog()
-        statD.exec_()
+    def show_information(self):
+        data = self.auth.get_server_config("config")
+        server_version = self.auth.get_server_config("version")
+        infoD = information.Information_Dialog(data, server_version, VERSION)
+        infoD.exec_()
 
     def close_from_tray(self):
         self.close()
@@ -563,8 +564,6 @@ class Denter_Form(QMainWindow):
             self.qsettings.setValue("password", self.settings["password"])
             self.qsettings.setValue("server", self.settings["server"])
             self.qsettings.setValue("useSecureConnection", self.settings["useSecureConnection"])
-            self.qsettings.setValue("isSingle", self.settings["isSingle"])
-            self.qsettings.setValue("messageLength", self.settings["messageLength"])
             self.qsettings.setValue("deleteAllFromCacheOnExit", self.settings["deleteAllFromCacheOnExit"])
             self.qsettings.setValue("updateInterval", self.settings["updateInterval"])
             self.qsettings.setValue("remember_last_dent_id", self.settings["remember_last_dent_id"])
@@ -615,12 +614,15 @@ class NewPostDialog(QDialog):
     def countCharacters(self):
         self.textLenght = len(self.ui.postData.toPlainText())
         self.enteredSymbols = self.messageLength - self.textLenght
-        if self.enteredSymbols < 0:
-            self.ui.symbolCount.setText("<div style='color:red; font-weight:bold;'>" + str(self.enteredSymbols) + "/" + str(self.messageLength) + "</div>")
-            self._messageIsTooLong = 1
+        if not self.messageLength == 0:
+            if self.enteredSymbols < 0:
+                self.ui.symbolCount.setText("<div style='color:red; font-weight:bold;'>" + str(self.enteredSymbols) + "/" + str(self.messageLength) + "</div>")
+                self._messageIsTooLong = 1
+            else:
+                self.ui.symbolCount.setText(str(self.enteredSymbols) + "/" + str(self.messageLength))
+                self._messageIsTooLong = 0
         else:
-            self.ui.symbolCount.setText(str(self.enteredSymbols) + "/" + str(self.messageLength))
-            self._messageIsTooLong = 0
+            self.ui.symbolCount.setText("<div style='font-weight:bold;'>No characters limit</div>")
 
     def postData(self):
         if self._messageIsTooLong == 1:
@@ -648,23 +650,6 @@ class NewPostDialog(QDialog):
         mbc.emit(SIGNAL("SendDirectMessage(PyQt_PyObject)"), data)
 
         self.close()
-
-class StatisticsDialog(QDialog):
-    def __init__(self, parent = None):
-        QDialog.__init__(self, parent)
-        self.ui = Stat.Ui_Dialog()
-        self.ui.setupUi(self)
-
-        self.ui.closeDialog.clicked.connect(self.close)
-
-        self.ui.appVer.setText(VERSION)
-        self.ui.dbsize.setText(self.getDatabaseSize())
-
-    def getDatabaseSize(self):
-        rawsize = os.path.getsize(os.path.expanduser("~/.config/qtdenter/data.sqlite"))
-        size = rawsize / 1024
-
-        return str(size) + " " + self.tr("Kbytes")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

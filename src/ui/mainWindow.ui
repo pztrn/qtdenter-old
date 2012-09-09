@@ -412,7 +412,7 @@
   </action>
   <action name="actionStatistics">
    <property name="text">
-    <string>Statistics...</string>
+    <string>Information...</string>
    </property>
   </action>
   <action name="actionSpam_Music_data">

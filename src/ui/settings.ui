@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>385</width>
-    <height>504</height>
+    <width>405</width>
+    <height>559</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,20 +66,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Single user installation?</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QCheckBox" name="suiCheckbox">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
@@ -91,23 +77,6 @@
           <widget class="QCheckBox" name="useSecureConnectionCheckbox">
            <property name="text">
             <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="mllabel">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Message length:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="messageLength">
-           <property name="enabled">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -193,8 +162,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>327</width>
-            <height>316</height>
+            <width>363</width>
+            <height>322</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
@@ -207,9 +176,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'PT Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please, enter your credentials in this fields.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use &lt;a href=&quot;http://identi.ca/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;identi.ca&lt;/span&gt;&lt;/a&gt; service or if you know, that service you use provide authorization through secure connection - select &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Use secure connection&lt;/span&gt;&amp;quot;. Please note, that authorization goes through &amp;quot;Basic auth&amp;quot;, that means your login and password will be sent to server as plaintext.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use standalone status.net installation - you can choose &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Single user installation&lt;/span&gt;&amp;quot; and specify maximum message length. Otherwise message length will be limited to 140 symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use &lt;a href=&quot;http://identi.ca/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;identi.ca&lt;/span&gt;&lt;/a&gt; service or if you know, that service you use provide authorization through secure connection - select &amp;quot;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Use secure connection&lt;/span&gt;&amp;quot;. Please note, that authorization goes through &amp;quot;Basic auth&amp;quot;, that means your login and password will be sent to server as plaintext.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

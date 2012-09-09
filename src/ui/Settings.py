@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'settings.ui'
 #
-# Created: Sun Sep  9 10:16:28 2012
+# Created: Sun Sep  9 14:44:46 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -18,7 +18,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        Dialog.resize(385, 504)
+        Dialog.resize(405, 559)
         self.gridLayout = QtGui.QGridLayout(Dialog)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.tabWidget = QtGui.QTabWidget(Dialog)
@@ -49,13 +49,6 @@ class Ui_Dialog(object):
         self.password.setEchoMode(QtGui.QLineEdit.Password)
         self.password.setObjectName(_fromUtf8("password"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.password)
-        self.label_4 = QtGui.QLabel(self.tab)
-        self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_4)
-        self.suiCheckbox = QtGui.QCheckBox(self.tab)
-        self.suiCheckbox.setText(_fromUtf8(""))
-        self.suiCheckbox.setObjectName(_fromUtf8("suiCheckbox"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.suiCheckbox)
         self.label_7 = QtGui.QLabel(self.tab)
         self.label_7.setObjectName(_fromUtf8("label_7"))
         self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_7)
@@ -63,14 +56,6 @@ class Ui_Dialog(object):
         self.useSecureConnectionCheckbox.setText(_fromUtf8(""))
         self.useSecureConnectionCheckbox.setObjectName(_fromUtf8("useSecureConnectionCheckbox"))
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.useSecureConnectionCheckbox)
-        self.mllabel = QtGui.QLabel(self.tab)
-        self.mllabel.setEnabled(False)
-        self.mllabel.setObjectName(_fromUtf8("mllabel"))
-        self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.mllabel)
-        self.messageLength = QtGui.QLineEdit(self.tab)
-        self.messageLength.setEnabled(False)
-        self.messageLength.setObjectName(_fromUtf8("messageLength"))
-        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.messageLength)
         self.gridLayout_2.addLayout(self.formLayout, 0, 0, 1, 1)
         self.scrollArea = QtGui.QScrollArea(self.tab)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.MinimumExpanding)
@@ -101,7 +86,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 327, 316))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 363, 322))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.gridLayout_6 = QtGui.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_6.setObjectName(_fromUtf8("gridLayout_6"))
@@ -233,18 +218,14 @@ class Ui_Dialog(object):
         self.label.setText(QtGui.QApplication.translate("Dialog", "Account name:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Server:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Password:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog", "Single user installation?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("Dialog", "Use secure connection?", None, QtGui.QApplication.UnicodeUTF8))
-        self.mllabel.setText(QtGui.QApplication.translate("Dialog", "Message length:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'PT Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Please, enter your credentials in this fields.</p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If you use <a href=\"http://identi.ca/\"><span style=\" text-decoration: underline; color:#0000ff;\">identi.ca</span></a> service or if you know, that service you use provide authorization through secure connection - select &quot;<span style=\" font-weight:600; font-style:italic;\">Use secure connection</span>&quot;. Please note, that authorization goes through &quot;Basic auth&quot;, that means your login and password will be sent to server as plaintext.</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If you use standalone status.net installation - you can choose &quot;<span style=\" font-weight:600; font-style:italic;\">Single user installation</span>&quot; and specify maximum message length. Otherwise message length will be limited to 140 symbols.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If you use <a href=\"http://identi.ca/\"><span style=\" text-decoration: underline; color:#0000ff;\">identi.ca</span></a> service or if you know, that service you use provide authorization through secure connection - select &quot;<span style=\" font-weight:600; font-style:italic;\">Use secure connection</span>&quot;. Please note, that authorization goes through &quot;Basic auth&quot;, that means your login and password will be sent to server as plaintext.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog", "Account", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
