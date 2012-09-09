@@ -317,12 +317,17 @@ class Denter_Form(QMainWindow):
         avatar_widget = item_data[1]
         post_widget = item_data[2]
         
+        destroy_button = avatar_widget.findChild(QPushButton, "destroy_button_" + str(data["id"]))
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
+        destroy_button.clicked.connect(self.delete_dent)
         dentid_button.clicked.connect(self.go_to_dent)
         redent_button.clicked.connect(self.redent_dent)
         like_button.clicked.connect(self.like_dent)
+        
+        if not data["nickname"] == self.settings["user"]:
+            destroy_button.hide()
         
         list_widget = self.ui.timeline_list
         if list_type == "mentions":
@@ -371,6 +376,18 @@ class Denter_Form(QMainWindow):
             
         dent_id = list_widget.currentItem().text(2).split(":")[0]
         self.auth.redent_dent(dent_id, VERSION)
+        
+    def delete_dent(self):
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
+            
+        dent_id = list_widget.currentItem().text(2).split(":")[0]
+        data = self.auth.delete_dent(dent_id)
+        if data == "OK":
+            index = list_widget.indexOfTopLevelItem(list_widget.currentItem())
+            list_widget.takeTopLevelItem(index)
 
     def post_status(self, data):
         data = self.auth.post_dent(data, VERSION)

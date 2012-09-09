@@ -71,6 +71,24 @@ class Requester():
         
         return json.loads(result)
         
+    def delete_dent(self, dent_id):
+        data = {"id": dent_id}
+        encoded_data = urlencode(data)
+        print "DATA ENCODED"
+        
+        request = urllib2.Request(self._api_url + "statuses/destroy.json".format(dent_id), encoded_data)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        print "REQUEST FORMED"
+        
+        try:
+            result = urllib2.urlopen(request)
+            result = result.read()
+        
+            return "OK"
+        except:
+            return "FAIL"
+        
     def redent_dent(self, dent_id, version):
         data = {"id": dent_id}
         encoded_data = urlencode(data)

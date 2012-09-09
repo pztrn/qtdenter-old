@@ -41,6 +41,13 @@ class list_item:
         avatar_data.setMaximumSize(48, 48)
         avatar_data.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.MinimumExpanding)
         
+        destroy_button = QPushButton()
+        destroy_button.setText("Delete")
+        destroy_button.setFixedHeight(20)
+        #destroy_button.setFlat(True)
+        destroy_button.setObjectName("destroy_button_" + str(data["id"]))
+        destroy_button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        
         like_button = QPushButton()
         if data["in_favorites"]:
             like_button.setText("X")
@@ -66,8 +73,13 @@ class list_item:
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons_layout)
         
+        spacer = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
+        spacer2 = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
+        
         post_avatar_layout = QVBoxLayout()
         post_avatar_layout.addWidget(avatar_data)
+        post_avatar_layout.addWidget(destroy_button)
+        post_avatar_layout.addItem(spacer)
         
         post_avatar_widget = QWidget()
         post_avatar_widget.setLayout(post_avatar_layout)
@@ -91,7 +103,9 @@ class list_item:
         post_info_layout.addWidget(dentid_button)
         post_info_layout.addWidget(source)
         post_info_layout.addWidget(buttons_widget)
-        post_info_layout.setAlignment(Qt.AlignRight)
+        post_info_layout.addItem(spacer2)
+        post_info_layout.setAlignment(Qt.AlignTop)
+        post_info_layout.setContentsMargins(9, 0, 9, 0)
         
         post_info_widget = QWidget()
         post_info_widget.setLayout(post_info_layout)
