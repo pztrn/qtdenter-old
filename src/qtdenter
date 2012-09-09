@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-# PUrT Launching script
+# QTDentor Launching script
 
 pythonver=$(python -c "import platform; print platform.python_version()[0:3]" 2>/dev/null)
 
@@ -11,6 +11,12 @@ else
     python_interpretator="python"
 fi
 
-CLIENT_DIR="/usr/lib/python$pythonver/site-packages/qtdenter"
+if [[ -d "/usr/lib64" ]]; then
+    libdir="/usr/lib64"
+else
+    libdir="/usr/lib"
+fi
+
+CLIENT_DIR="${libdir}/python${pythonver}/site-packages/qtdenter"
 
 $python_interpretator $CLIENT_DIR/qtdenter.py
