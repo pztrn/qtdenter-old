@@ -58,7 +58,6 @@ class New_Post(QDialog):
                 data = {}
                 data["text"] = self.ui.postData.toPlainText()
                 data["reply_to_id"] = self.params["reply_to_id"]
-                print data
                 self.callback("send_reply", data)
             else:
                 self.callback("post_data", str(QString.toUtf8(self.ui.postData.toPlainText())))

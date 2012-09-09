@@ -337,12 +337,12 @@ class Denter_Form(QMainWindow):
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
+        context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
         destroy_button.clicked.connect(self.delete_dent)
         dentid_button.clicked.connect(self.go_to_dent)
         redent_button.clicked.connect(self.redent_dent)
         like_button.clicked.connect(self.like_dent)
         if data["in_reply_to_screen_name"]:
-            context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
             context_button.clicked.connect(self.show_context)
         
         if not data["nickname"] == self.settings["user"]:
