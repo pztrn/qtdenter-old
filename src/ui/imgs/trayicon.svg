@@ -1,23 +1,93 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="425px"
-   width="525px"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
    version="1.1"
-   id="svg4147"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="trayicon.svg"
-   inkscape:export-filename="/data/etc/PYTHON/mbc/src/ui/imgs/trayicon.png"
+   inkscape:export-filename="/data/Projects/github/qtdenter/src/qtdenter.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3797"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#fa6004;stop-opacity:1;"
+         offset="0"
+         id="stop3799" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3787">
+      <stop
+         style="stop-color:#fa6004;stop-opacity:1;"
+         offset="0"
+         id="stop3789" />
+      <stop
+         style="stop-color:#fa6004;stop-opacity:0;"
+         offset="1"
+         id="stop3791" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3797"
+       id="linearGradient3801"
+       x1="206.64285"
+       y1="568.07648"
+       x2="247.64285"
+       y2="568.07648"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-65.714286,-275.71429)" />
+    <filter
+       inkscape:collect="always"
+       id="filter3815">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.77821012"
+         id="feGaussianBlur3817" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3780">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="5.7707509"
+         id="feGaussianBlur3782" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="-164.46418"
+     inkscape:cy="573.98041"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
   <metadata
-     id="metadata4155">
+     id="metadata7">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -28,140 +98,37 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <defs
-     id="defs4153">
-    <filter
-       id="filter4378"
-       inkscape:menu-tooltip="Make the lightest parts of the object progressively transparent"
-       inkscape:menu="Transparency utilities"
-       inkscape:label="Light eraser"
-       height="1"
-       width="1"
-       y="0"
-       x="0"
-       color-interpolation-filters="sRGB">
-      <feColorMatrix
-         id="feColorMatrix4380"
-         result="result14"
-         type="luminanceToAlpha"
-         in="SourceGraphic" />
-      <feComposite
-         in2="result14"
-         id="feComposite4382"
-         in="SourceGraphic"
-         result="fbSourceGraphic"
-         operator="out" />
-      <feBlend
-         in2="fbSourceGraphic"
-         id="feBlend4384"
-         mode="normal"
-         result="result15" />
-    </filter>
-    <filter
-       id="filter4378-1"
-       inkscape:menu-tooltip="Make the lightest parts of the object progressively transparent"
-       inkscape:menu="Transparency utilities"
-       inkscape:label="Light eraser"
-       height="1"
-       width="1"
-       y="0"
-       x="0"
-       color-interpolation-filters="sRGB">
-      <feColorMatrix
-         id="feColorMatrix4380-5"
-         result="result14"
-         type="luminanceToAlpha"
-         in="SourceGraphic" />
-      <feComposite
-         in2="result14"
-         id="feComposite4382-2"
-         in="SourceGraphic"
-         result="fbSourceGraphic"
-         operator="out" />
-      <feBlend
-         in2="fbSourceGraphic"
-         id="feBlend4384-0"
-         mode="normal"
-         result="result15" />
-    </filter>
-  </defs>
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1529"
-     inkscape:window-height="941"
-     id="namedview4151"
-     showgrid="false"
-     inkscape:zoom="1"
-     inkscape:cx="216.57324"
-     inkscape:cy="148.29368"
-     inkscape:window-x="42"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg4147" />
-  <flowRoot
-     xml:space="preserve"
-     id="flowRoot4165"
-     style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:PT Sans;font-style:normal;font-weight:normal;font-size:56px;line-height:125%;letter-spacing:0px;word-spacing:0px;-inkscape-font-specification:PT Sans;font-stretch:normal;font-variant:normal"><flowRegion
-       id="flowRegion4167"><rect
-         id="rect4169"
-         width="293.89313"
-         height="160.30534"
-         x="120.229"
-         y="107.06107"
-         style="font-size:56px" /></flowRegion><flowPara
-       id="flowPara4171" /></flowRoot>  <g
-     id="g3005"
-     transform="matrix(0.85102381,0,0,1,7.6318428,0)"
-     inkscape:export-xdpi="15.561632"
-     inkscape:export-ydpi="15.561632">
-    <g
-       transform="matrix(0.64398693,0,0,0.64398693,10.6916,154.91353)"
-       id="g4386">
-      <path
-         style="fill:#ffffff;stroke:#000000;stroke-width:12.74995518px;stroke-linejoin:round;filter:url(#filter4378)"
-         d="M 91.103541,375.69347 129.13964,289.24779 C 105.09951,270.47672 62.28832,240.83821 62.946939,185.51297 62.592927,102.0828 176.29332,49.685471 264.98286,50.657717 382.87831,50.49306 472.12314,112.07531 471.95851,185.01899 471.79387,283.81405 333.81006,348.03085 192.86246,313.94656 z"
-         id="path4149"
-         inkscape:connector-curvature="0" />
-      <flowRoot
-         xml:space="preserve"
-         id="flowRoot4173"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:PT Sans;-inkscape-font-specification:PT Sans"
-         transform="matrix(3.1661978,0,0,3.1661978,-379.47836,-605.16083)"><flowRegion
-           id="flowRegion4175"><rect
-             id="rect4177"
-             width="259.16031"
-             height="170.99237"
-             x="149.61832"
-             y="115.07634" /></flowRegion><flowPara
-           id="flowPara4179"
-           style="font-size:144px">...</flowPara></flowRoot>    </g>
-    <g
-       transform="matrix(-0.63601469,0,0,0.63601469,516.84205,4.2982909)"
-       id="g4386-7">
-      <path
-         style="fill:#ffffff;stroke:#000000;stroke-width:12.74995518px;stroke-linejoin:round;filter:url(#filter4378-1)"
-         d="M 91.103541,375.69347 129.13964,289.24779 C 105.09951,270.47672 62.28832,240.83821 62.946939,185.51297 62.592927,102.0828 176.29332,49.685471 264.98286,50.657717 382.87831,50.49306 472.12314,112.07531 471.95851,185.01899 471.79387,283.81405 333.81006,348.03085 192.86246,313.94656 z"
-         id="path4149-1"
-         inkscape:connector-curvature="0" />
-      <flowRoot
-         xml:space="preserve"
-         id="flowRoot4173-6"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:PT Sans;-inkscape-font-specification:PT Sans"
-         transform="matrix(3.1661978,0,0,3.1661978,-379.47836,-605.16083)"><flowRegion
-           id="flowRegion4175-4"><rect
-             id="rect4177-9"
-             width="259.16031"
-             height="170.99237"
-             x="149.61832"
-             y="115.07634" /></flowRegion><flowPara
-           id="flowPara4179-5"
-           style="font-size:144px">...</flowPara></flowRoot>    </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#006780;fill-opacity:0.32156869;stroke:#fa6004;stroke-opacity:0"
+       id="rect3004"
+       width="267.14285"
+       height="267.14285"
+       x="194.28571"
+       y="48.076469"
+       rx="12"
+       ry="12" />
+    <rect
+       style="opacity:0.34126988000000003;fill:#006680;fill-opacity:0.94117647000000004;stroke:#f0b80f;stroke-opacity:0.94117647000000004;filter:url(#filter3780)"
+       id="rect2989"
+       width="208.57143"
+       height="208.57143"
+       x="222.85713"
+       y="76.647873"
+       rx="12"
+       ry="12" />
+    <rect
+       style="fill:url(#linearGradient3801);fill-opacity:1;stroke:#fa6004;stroke-opacity:0;filter:url(#filter3815)"
+       id="rect3009"
+       width="40"
+       height="40"
+       x="141.42857"
+       y="272.36218"
+       rx="12"
+       ry="12"
+       transform="matrix(3.5543472,0,0,3.5543472,-246.63034,-856.79453)" />
   </g>
 </svg>
