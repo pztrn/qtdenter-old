@@ -68,7 +68,7 @@ class Denter_Form(QMainWindow):
         self._hidden = 0
         self.inserted_timeline_dents_ids = []
         self.inserted_mentions_dents_ids = []
-        self._new_dents = 0
+        self._new_direct_messages = 0
         self._new_mentions = 0
         self._changed_credentials = False
         
@@ -138,6 +138,7 @@ class Denter_Form(QMainWindow):
 
         self.connect(self, SIGNAL("PostData(PyQt_PyObject)"), self.post_status)
         self.connect(self, SIGNAL("SendReply(PyQt_PyObject)"), self.send_reply)
+        self.connect(self, SIGNAL("SendDirectMessage(PyQt_PyObject)"), self.send_direct_message)
         self.connect(self, SIGNAL("ChangeSettings(PyQt_PyObject)"), self.change_settings)
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("HideForm()"), self.check_for_visibility)
@@ -148,6 +149,11 @@ class Denter_Form(QMainWindow):
         newPost = QAction(newPostIcon, "New post", self)
         newPost.setShortcut("Ctrl+N")
         newPost.triggered.connect(self.post_status_dialog)
+        
+        new_direct_message_icon = iconFromTheme("no-new-messages")
+        new_direct_message = QAction(new_direct_message_icon, "New direct message", self)
+        new_direct_message.setShortcut("Ctrl+N")
+        new_direct_message.triggered.connect(self.post_direct_message_dialog)
 
         reloadTimelinesIcon = iconFromTheme("reload")
         reloadTimelines = QAction(reloadTimelinesIcon, "Reload all timelines", self)
@@ -165,6 +171,7 @@ class Denter_Form(QMainWindow):
         self.time_updated_action = QLabel()
 
         self.ui.toolBar.addAction(newPost)
+        self.ui.toolBar.addAction(new_direct_message)
         self.ui.toolBar.addSeparator()
         self.ui.toolBar.addAction(reloadTimelines)
         self.ui.toolBar.addSeparator()
@@ -268,20 +275,20 @@ class Denter_Form(QMainWindow):
             self.time_updated_action.setText("<b>Last updated on: {0}</b>".format(curtime))
             
             # Notifications
-            if self._new_dents > 0:
-                notify = pynotify.Notification("qtdenter", "{0} new dents arrived.".format(self._new_dents), None)
+            if self._new_direct_messages > 0:
+                notify = pynotify.Notification("qtdenter", "{0} new dents arrived.".format(self._new_direct_messages), None)
                 notify.set_urgency(pynotify.URGENCY_NORMAL)
                 notify.set_timeout(10000)
                 notify.add_action("clicked","Show QTDenter", self.show_window, None)
                 notify.show()
-                self._new_dents = 0
+                self._new_direct_messages = 0
             
             
     def add_to_timeline_iterator(self, data):
         if data["id"] not in self.inserted_timeline_dents_ids:
             self.inserted_timeline_dents_ids.append(data["id"])
             self.add_dent_to_widget("timeline", data)
-            self._new_dents += 1
+            self._new_direct_messages += 1
         else:
             pass
 
@@ -372,6 +379,9 @@ class Denter_Form(QMainWindow):
         data = self.auth.send_reply(data, VERSION)
         self.list_handler.add_data("home", [data])
         
+    def send_direct_message(self, data):
+        self.auth.send_direct_message(data, VERSION)
+        
     def reply_to_dent(self):
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
@@ -384,6 +394,7 @@ class Denter_Form(QMainWindow):
         to_username = list_widget.currentItem().text(2).split(":")[1]
         dent_text = list_widget.currentItem().text(4)
         params = {}
+        params["direct"] = False
         params["reply_to_id"] = dent_id
         params["nickname"] = to_username
         params["text"] = dent_text
@@ -392,6 +403,12 @@ class Denter_Form(QMainWindow):
         
     def post_status_dialog(self):
         newpostD = NewPostDialog(self.settings["messageLength"], None)
+        newpostD.exec_()
+        
+    def post_direct_message_dialog(self):
+        params = {}
+        params["direct"] = True
+        newpostD = NewPostDialog(self.settings["messageLength"], params)
         newpostD.exec_()
         
     def go_to_dent(self):
@@ -509,17 +526,25 @@ class NewPostDialog(QDialog):
         self.reply = False
         
         if parameters:
-            print "PARAMS"
-            self.params = parameters
-            self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
-            self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
-            self.reply = True
+            try:
+                self.params = parameters
+                self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
+                self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
+                self.reply = True
+            except:
+                # It's direct message. Passing
+                pass
 
         self._messageIsTooLong = 0
 
         self.ui.postData.textChanged.connect(self.countCharacters)
-        self.ui.postButton.clicked.connect(self.postData)
         self.ui.cancelButton.clicked.connect(self.close)
+        
+        if self.params["direct"]:
+            self.ui.label.setText("Enter nickname of person to whom send direct message like:\n@@username")
+            self.ui.postButton.clicked.connect(self.post_direct_message)
+        else:
+            self.ui.postButton.clicked.connect(self.postData)
 
     def countCharacters(self):
         self.textLenght = len(self.ui.postData.toPlainText())
@@ -545,6 +570,16 @@ class NewPostDialog(QDialog):
                     mbc.emit(SIGNAL("PostData(PyQt_PyObject)"), str(QString.toUtf8(self.ui.postData.toPlainText())))
             except:
                 print "FAILED TO SIGNAL!"
+                
+            self.close()
+                
+    def post_direct_message(self):
+        message = str(QString.toUtf8(self.ui.postData.toPlainText()))
+        data = {}
+        data["nickname"] = message.split(" ")[0][2:]
+        data["message"] = message.split(" ")[1]
+        
+        mbc.emit(SIGNAL("SendDirectMessage(PyQt_PyObject)"), data)
 
         self.close()
 
