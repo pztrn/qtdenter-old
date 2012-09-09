@@ -217,18 +217,22 @@ class Denter_Form(QMainWindow):
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
+        
+            opts = {"count"     : str(self.settings["fetch_on_startup"]),
+                    "name"      : self.settings["user"]
+                    }
             
             if self.settings["remember_last_dent_id"] == "1":
-                opts = {"count"     : None,
-                        "from_id"   : self.settings["last_dent_id"], 
+                # Getting last dent ID from server
+                temp = self.auth.get_home_timeline(opts)
+                # Calculation count of dents we will download on startup
+                print "C"
+                count = temp[0]["id"] - int(self.settings["last_dent_id"])
+            
+                opts = {"count"     : str(count),
                         "name"      : self.settings["user"]
                         }
-            else:
-                opts = {"count"     : str(self.settings["fetch_on_startup"]),
-                        "from_id"   : None,
-                        "name"      : self.settings["user"]
-                        }
-                
+
             home_timeline = self.auth.get_home_timeline(opts)
             self.list_handler.add_data("home", home_timeline)
             mentions = self.auth.get_mentions(opts)
@@ -240,6 +244,8 @@ class Denter_Form(QMainWindow):
             
         # Init timer
         self.start_timer(self.settings["updateInterval"])
+        
+        # Init "Now Playing"
         self.np = now_playing.Now_Playing(self.settings["player"], self.settings["player_string"])
         
         # Get max characters count from server

@@ -155,8 +155,6 @@ class Requester():
         if opts:
             if opts["count"]:
                 url = url + "count={0}&".format(opts["count"])
-            if opts["from_id"]:
-                url = url + "since_id={0}&".format(opts["from_id"])
                 
         request = urllib2.Request(url)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
@@ -164,6 +162,8 @@ class Requester():
         try:
             result = urllib2.urlopen(request)
             data = json.loads(result.read())
+            
+            print len(data)
             
             return data
         except urllib2.HTTPError, e:
@@ -174,8 +174,6 @@ class Requester():
         if opts:
             if opts["count"]:
                 url = url + "count={0}&".format(opts["count"])
-            if opts["from_id"]:
-                url = url + "since_id={0}&".format(opts["from_id"])
         
         request = urllib2.Request(url)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
@@ -193,8 +191,6 @@ class Requester():
         if opts:
             if opts["count"]:
                 url = url + "count={0}&".format(opts["count"])
-            if opts["from_id"]:
-                url = url + "since_id={0}&".format(opts["from_id"])
         
         request = urllib2.Request(url)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
