@@ -204,14 +204,15 @@ class Denter_Form(QMainWindow):
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
+            print self.settings
             
-            if not self.settings["remember_last_dent_id"] == 1:
+            if self.settings["remember_last_dent_id"] == "1":
                 opts = {"count"     : None,
                         "from_id"   : self.settings["last_dent_id"], 
                         "name"      : self.settings["user"]
                         }
             else:
-                opts = {"count"     : self.settings["fetch_on_startup"],
+                opts = {"count"     : str(self.settings["fetch_on_startup"]),
                         "from_id"   : None,
                         "name"      : self.settings["user"]
                         }
@@ -450,7 +451,7 @@ class Denter_Form(QMainWindow):
 
     def closeEvent(self, event):
         box = QMessageBox()
-        box.setWindowTitle("mbc - Exiting")
+        box.setWindowTitle("QTDenter - Exiting")
         box.setText("Are you sure you want to exit?")
         box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         box.setDefaultButton(QMessageBox.Ok)

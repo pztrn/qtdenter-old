@@ -105,11 +105,13 @@ class Requester():
 
     def get_home_timeline(self, opts):
         print "START"
-        url = self._api_url + "statuses/home_timeline.json?"
+        url = self._api_url + "statuses/home_timeline/{0}.json?".format(opts["name"])
         if opts:
             if opts["count"]:
+                print "COUNT ADDED"
                 url = url + "count={0}&".format(opts["count"])
             if opts["from_id"]:
+                print "FROMID ADDED"
                 url = url + "since_id={0}&".format(opts["from_id"])
                 
         request = urllib2.Request(url)
@@ -129,8 +131,7 @@ class Requester():
         
         url = self._api_url + "statuses/mentions/{0}.json?".format(opts["name"])
         if opts:
-            if opts["count"]:
-                url = url + "count={0}&".format(opts["count"])
+            url = url + "count={0}&".format(opts["count"])
             if opts["from_id"]:
                 url = url + "since_id={0}&".format(opts["from_id"])
         
