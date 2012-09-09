@@ -104,14 +104,11 @@ class Requester():
         return json.loads(result)
 
     def get_home_timeline(self, opts):
-        print "START"
         url = self._api_url + "statuses/home_timeline/{0}.json?".format(opts["name"])
         if opts:
             if opts["count"]:
-                print "COUNT ADDED"
                 url = url + "count={0}&".format(opts["count"])
             if opts["from_id"]:
-                print "FROMID ADDED"
                 url = url + "since_id={0}&".format(opts["from_id"])
                 
         request = urllib2.Request(url)
@@ -120,18 +117,16 @@ class Requester():
         try:
             result = urllib2.urlopen(request)
             data = json.loads(result.read())
-            print "DATA RECEIVED"
 
             return data
         except urllib2.HTTPError, e:
             return e
 
     def get_mentions(self, opts):
-        print "START"
-        
         url = self._api_url + "statuses/mentions/{0}.json?".format(opts["name"])
         if opts:
-            url = url + "count={0}&".format(opts["count"])
+            if opts["count"]:
+                url = url + "count={0}&".format(opts["count"])
             if opts["from_id"]:
                 url = url + "since_id={0}&".format(opts["from_id"])
         
@@ -141,7 +136,25 @@ class Requester():
         try:
             result = urllib2.urlopen(request)
             data = json.loads(result.read())
-            print "DATA RECEIVED"
+
+            return data
+        except urllib2.HTTPError, e:
+            return e
+
+    def get_direct_messages(self, opts):
+        url = self._api_url + "direct_messages.json?".format(opts["name"])
+        if opts:
+            if opts["count"]:
+                url = url + "count={0}&".format(opts["count"])
+            if opts["from_id"]:
+                url = url + "since_id={0}&".format(opts["from_id"])
+        
+        request = urllib2.Request(url)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        try:
+            result = urllib2.urlopen(request)
+            data = json.loads(result.read())
 
             return data
         except urllib2.HTTPError, e:

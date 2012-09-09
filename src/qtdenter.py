@@ -204,7 +204,6 @@ class Denter_Form(QMainWindow):
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
-            print self.settings
             
             if self.settings["remember_last_dent_id"] == "1":
                 opts = {"count"     : None,
@@ -221,6 +220,8 @@ class Denter_Form(QMainWindow):
             self.list_handler.add_data("home", home_timeline)
             mentions = self.auth.get_mentions(opts)
             self.list_handler.add_data("mentions", mentions)
+            mentions = self.auth.get_direct_messages(opts)
+            self.list_handler.add_data("direct_messages", mentions)
         except:
             print "No auth data specified"
             
@@ -250,6 +251,8 @@ class Denter_Form(QMainWindow):
         self.list_handler.add_data("home", home_timeline)
         mentions = self.auth.get_mentions(opts)
         self.list_handler.add_data("mentions", mentions)
+        mentions = self.auth.get_direct_messages(opts)
+        self.list_handler.add_data("direct_messages", mentions)
             
     def lists_callback(self, list_type, data):
         if list_type == "home":
@@ -258,6 +261,8 @@ class Denter_Form(QMainWindow):
             self.update_timeline_avatar(data)
         elif list_type == "mentions":
             self.add_to_mentions_iterator(data)
+        elif list_type == "direct_messages":
+            self.add_to_dm_iterator(data)
         elif list_type == "end":
             curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             self.time_updated_action.setText("<b>Last updated on: {0}</b>".format(curtime))
@@ -287,6 +292,14 @@ class Denter_Form(QMainWindow):
             self._new_mentions += 1
         else:
             pass
+            
+    def add_to_dm_iterator(self, data):
+        if data["id"] not in self.inserted_mentions_dents_ids:
+            self.inserted_mentions_dents_ids.append(data["id"])
+            self.add_dent_to_widget("direct_messages", data)
+            self._new_mentions += 1
+        else:
+            pass
 
     def add_dent_to_widget(self, list_type, data):
         item_data = self.list_item.process_item(data)
@@ -305,6 +318,8 @@ class Denter_Form(QMainWindow):
         list_widget = self.ui.timeline_list
         if list_type == "mentions":
             list_widget = self.ui.mentions_list
+        if list_type == "direct_messages":
+            list_widget = self.ui.dm_list
         
         list_widget.addTopLevelItem(item)
         list_widget.setItemWidget(item, 0, avatar_widget)
@@ -318,6 +333,8 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
             list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
         
         item = list_widget.currentItem()
         dent_id = list_widget.currentItem().text(2).split(":")[0]
@@ -341,6 +358,8 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
             list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
             
         dent_id = list_widget.currentItem().text(2).split(":")[0]
         self.auth.redent_dent(dent_id, VERSION)
@@ -358,6 +377,8 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
             list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
             
         dent_id = list_widget.currentItem().text(2).split(":")[0]
         to_username = list_widget.currentItem().text(2).split(":")[1]

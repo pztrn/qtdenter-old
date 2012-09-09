@@ -77,10 +77,9 @@ class list_item:
         
         # Some underpost buttons
         dentid_button = QPushButton()
-        dentid_button.setText("id " + str(data["id"]))
+        dentid_button.setText("#" + str(data["id"]))
         dentid_button.setObjectName("dentid_button_" + str(data["id"]))
         dentid_button.setFixedHeight(20)
-        #dentid_button.setFixedWidth()
         dentid_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         
         source = QLabel()
