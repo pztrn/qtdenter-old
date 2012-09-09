@@ -240,7 +240,13 @@ class Denter_Form(QMainWindow):
                     
     def add_to_timeline(self, data):
         post_data = QLabel()
-        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p>".format(data["nickname"], data["text"], data["date"])))
+        
+        if data["in_reply_to_screen_name"]:
+            nickname = data["nickname"] + " " + u"\u2794" + " " + data["in_reply_to_screen_name"]
+        else:
+            nickname = data["nickname"]
+        
+        post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p>".format(nickname, data["text"], data["date"])))
         post_data.setWordWrap(True)
         post_data.setAlignment(Qt.AlignTop)
         post_data.setOpenExternalLinks(True)

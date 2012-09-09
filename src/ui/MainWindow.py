@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sun Sep  9 03:33:01 2012
+# Created: Sun Sep  9 03:59:45 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Options.setText(QtGui.QApplication.translate("MainWindow", "&Options", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Exit.setText(QtGui.QApplication.translate("MainWindow", "&Exit", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Exit.setText(QtGui.QApplication.translate("MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Update_all.setText(QtGui.QApplication.translate("MainWindow", "&Update all", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About_Denter.setText(QtGui.QApplication.translate("MainWindow", "&About QTDenter...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatistics.setText(QtGui.QApplication.translate("MainWindow", "Statistics...", None, QtGui.QApplication.UnicodeUTF8))

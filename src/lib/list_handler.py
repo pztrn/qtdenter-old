@@ -24,6 +24,8 @@ class List_Handler(QThread):
                 item_data["source"] = item["source"]
                 
             item_data["in_favorites"] = item["favorited"]
+            item_data["in_reply_to_screen_name"] = item["in_reply_to_screen_name"]
+            
             
             self.download_avatar(item["user"]["profile_image_url"], item["user"]["screen_name"])
             
