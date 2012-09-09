@@ -76,11 +76,12 @@ class Denter_Form(QMainWindow):
         QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
         
         # Tray icon
-        try:
-            QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
-        except:
-            QIcon("/usr/share/pixmaps/qtdenter.png")
-        self.trayIcon = QSystemTrayIcon(QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"), self)
+        if not os.path.exists(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"):
+            self.icon = QIcon("/usr/share/pixmaps/qtdenter.png")
+        else:
+            self.icon = QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
+            
+        self.trayIcon = QSystemTrayIcon(self.icon, self)
         self.trayIcon.setVisible(True)
         self.connect(self.trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.check_for_visibility)
         
@@ -300,7 +301,7 @@ class Denter_Form(QMainWindow):
             
             # Notifications
             if self._new_direct_messages > 0:
-                notify = pynotify.Notification("QTDenter", "{0} new dents arrived.".format(self._new_direct_messages), common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
+                notify = pynotify.Notification("QTDenter", "{0} new dents arrived.".format(self._new_direct_messages), self.icon)
                 notify.set_urgency(pynotify.URGENCY_NORMAL)
                 notify.set_timeout(10000)
                 notify.add_action("clicked","Show QTDenter", self.show_window, None)
