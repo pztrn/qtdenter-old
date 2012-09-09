@@ -344,6 +344,8 @@ class Denter_Form(QMainWindow):
         like_button.clicked.connect(self.like_dent)
         if data["in_reply_to_screen_name"]:
             context_button.clicked.connect(self.show_context)
+        else:
+            context_button.hide()
         
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
