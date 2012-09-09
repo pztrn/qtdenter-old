@@ -3,7 +3,7 @@
 import os
 from PyQt4.QtCore import QString, Qt
 from PyQt4.QtGui import QDialog, QPushButton, QMessageBox
-from ui import Context as cg
+from ui import Context_Window as cg
 from lib import list_item, list_handler, new_post
 
 class Context(QDialog):

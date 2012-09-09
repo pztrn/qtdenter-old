@@ -4,7 +4,7 @@
 import os, sys, json, urllib2, ConfigParser, time, commands
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui import MainWindow, NewPost, About, Stat, Context
+from ui import MainWindow, NewPost, About, Stat
 from lib import list_handler, list_item, common, options_dialog, information, context, new_post
 from addons import now_playing
 from identiparse import connector
@@ -337,20 +337,17 @@ class Denter_Form(QMainWindow):
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
-        context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
         destroy_button.clicked.connect(self.delete_dent)
         dentid_button.clicked.connect(self.go_to_dent)
         redent_button.clicked.connect(self.redent_dent)
         like_button.clicked.connect(self.like_dent)
         if data["in_reply_to_screen_name"]:
+            context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
             context_button.clicked.connect(self.show_context)
-        else:
-            context_button.hide()
         
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
-            
-        if data["nickname"] == self.settings["user"]:
+        else:
             redent_button.hide()
         
         list_widget = self.ui.timeline_list
