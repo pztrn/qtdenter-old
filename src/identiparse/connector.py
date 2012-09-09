@@ -21,7 +21,7 @@ class Requester():
             result = urllib2.urlopen(request)
             print "Credentials OK"
         except urllib2.HTTPError, e:
-            return e
+            print "Credentials NOT OK"
             
     def defavoritize_dent(self, dent_id, version):
         request = urllib2.Request(self._api_url + "/favorites/destroy/{0}.json".format(dent_id))

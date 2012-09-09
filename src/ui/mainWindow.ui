@@ -364,8 +364,15 @@
     <addaction name="separator"/>
     <addaction name="action_About_Denter"/>
    </widget>
+   <widget class="QMenu" name="menuAddons">
+    <property name="title">
+     <string>Addons</string>
+    </property>
+    <addaction name="actionSpam_Music_data"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Timelines"/>
+   <addaction name="menuAddons"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -406,6 +413,11 @@
   <action name="actionStatistics">
    <property name="text">
     <string>Statistics...</string>
+   </property>
+  </action>
+  <action name="actionSpam_Music_data">
+   <property name="text">
+    <string>Spam &amp;Music data</string>
    </property>
   </action>
  </widget>

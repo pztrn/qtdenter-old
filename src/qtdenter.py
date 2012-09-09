@@ -4,8 +4,9 @@
 import os, sys, json, urllib2, ConfigParser, time, commands
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui import MainWindow, Settings, NewPost, About, Stat
-from lib import database, list_handler, list_item, common
+from ui import MainWindow, NewPost, About, Stat
+from lib import database, list_handler, list_item, common, options_dialog
+from addons import now_playing
 from identiparse import connector
 import pynotify
 
@@ -129,6 +130,13 @@ class Denter_Form(QMainWindow):
         except:
             self.settings["remember_last_dent_id"] = "0"
             self.settings["fetch_on_startup"] = "20"
+            
+        try:
+            self.settings["player"] = self.qsettings.value("player").toString()
+            self.settings["player_string"] = self.qsettings.value("player_string").toString()
+        except:
+            self.settings["player"] = None
+            self.settings["player_string"] = "!listening to: $artist - $track #$player"
 
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
             database.createDB()
@@ -137,11 +145,11 @@ class Denter_Form(QMainWindow):
         self.ui.action_Exit.triggered.connect(self.close_from_menu)
         self.ui.action_About_Denter.triggered.connect(self.show_about)
         self.ui.actionStatistics.triggered.connect(self.show_statistics)
+        self.ui.actionSpam_Music_data.triggered.connect(self.spam_music)
 
         self.connect(self, SIGNAL("PostData(PyQt_PyObject)"), self.post_status)
         self.connect(self, SIGNAL("SendReply(PyQt_PyObject)"), self.send_reply)
         self.connect(self, SIGNAL("SendDirectMessage(PyQt_PyObject)"), self.send_direct_message)
-        self.connect(self, SIGNAL("ChangeSettings(PyQt_PyObject)"), self.change_settings)
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("HideForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("ShowOptions()"), self.show_options_dialog)
@@ -236,7 +244,8 @@ class Denter_Form(QMainWindow):
             
         # Init timer
         self.start_timer(self.settings["updateInterval"])
-        
+        self.np = now_playing.Now_Playing(self.settings["player"], self.settings["player_string"])
+        self.np.get_clementine_song()
             
     def init_connector(self):
         self.auth = connector.Requester(self.settings["user"], self.settings["password"], self.settings["server"] + "/api/", self.settings["useSecureConnection"])
@@ -412,7 +421,7 @@ class Denter_Form(QMainWindow):
         to_username = list_widget.currentItem().text(2).split(":")[1]
         dent_text = list_widget.currentItem().text(4)
         params = {}
-        params["direct"] = False
+        params["type"] = "reply"
         params["reply_to_id"] = dent_id
         params["nickname"] = to_username
         params["text"] = dent_text
@@ -420,12 +429,15 @@ class Denter_Form(QMainWindow):
         newpostD.exec_()
         
     def post_status_dialog(self):
-        newpostD = NewPostDialog(self.settings["messageLength"], None)
+        params = {
+                    "type": "new_dent"
+                }
+        newpostD = NewPostDialog(self.settings["messageLength"], params)
         newpostD.exec_()
         
     def post_direct_message_dialog(self):
         params = {}
-        params["direct"] = True
+        params["type"] = "direct"
         newpostD = NewPostDialog(self.settings["messageLength"], params)
         newpostD.exec_()
         
@@ -445,6 +457,22 @@ class Denter_Form(QMainWindow):
         
         QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
         
+    def spam_music(self):
+        music_data = self.np.get_music_info(self.settings["player"])
+        spam_string = self.qsettings.value("player_string").toString()
+        spam_string = spam_string.replace("$artist", music_data["artist"])
+        spam_string = spam_string.replace("$album", music_data["album"])
+        spam_string = spam_string.replace("$trackname", music_data["trackname"])
+        spam_string = spam_string.replace("$player", str(self.settings["player"]).lower())
+        spam_string = spam_string.replace("\"", "")
+        params = {
+                    "text": spam_string,
+                    "direct": False,
+                    "type": "insert"
+                }
+        newpostD = NewPostDialog(self.settings["messageLength"], params)
+        newpostD.exec_()
+    
     def set_current_item(self, item, column):
         print item, column
 
@@ -461,7 +489,7 @@ class Denter_Form(QMainWindow):
         self._hidden = 0
 
     def show_options_dialog(self):
-        settingsD = SettingsDialog(self.settings)
+        settingsD = options_dialog.Options_Dialog(self.settings, self.change_settings)
         settingsD.exec_()
 
     def change_settings(self, data):
@@ -481,6 +509,8 @@ class Denter_Form(QMainWindow):
         self.settings["updateInterval"] = data[7]
         self.settings["remember_last_dent_id"] = data[8]
         self.settings["fetch_on_startup"] = data[9]
+        self.settings["player"] = data[10]
+        self.settings["player_string"] = data[11]
         self.init_connector()
         self.start_timer(self.settings["updateInterval"])
         
@@ -524,6 +554,8 @@ class Denter_Form(QMainWindow):
             self.qsettings.setValue("updateInterval", self.settings["updateInterval"])
             self.qsettings.setValue("remember_last_dent_id", self.settings["remember_last_dent_id"])
             self.qsettings.setValue("fetch_on_startup", self.settings["fetch_on_startup"])
+            self.qsettings.setValue("player", self.settings["player"])
+            self.qsettings.setValue("player_string", self.settings["player_string"])
             self.qsettings.setValue("state", self.saveState())
             self.qsettings.setValue("geometry", self.saveGeometry())
             if self.settings["remember_last_dent_id"] == "1":
@@ -545,14 +577,14 @@ class NewPostDialog(QDialog):
         self.direct = False
         
         self.params = parameters
-        if self.params:
-            try:
-                self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
-                self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
-                self.reply = True
-            except:
-                # It's direct message. Passing
-                self.direct = True
+        if self.params["type"] == "reply":
+            self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
+            self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
+            self.reply = True
+        elif self.params["type"] == "direct":
+            self.direct = True
+        elif self.params["type"] == "insert":
+            self.ui.postData.appendPlainText(self.params["text"])
             
         self._messageIsTooLong = 0
 
@@ -600,97 +632,6 @@ class NewPostDialog(QDialog):
         
         mbc.emit(SIGNAL("SendDirectMessage(PyQt_PyObject)"), data)
 
-        self.close()
-
-
-class SettingsDialog(QDialog):
-    def __init__(self, settings, parent = None):
-        QDialog.__init__(self, parent)
-        self.ui = Settings.Ui_Dialog()
-        self.ui.setupUi(self)
-
-        self.settings = settings
-        self.ui.accountName.setText(self.settings["user"])
-        self.ui.serverName.setText(self.settings["server"])
-        self.ui.password.setText(self.settings["password"])
-        if self.settings["useSecureConnection"] == "1":
-            self.ui.useSecureConnectionCheckbox.setCheckState(2)
-        else:
-            self.ui.useSecureConnectionCheckbox.setCheckState(0)
-        if self.settings["isSingle"] == "1":
-            self.ui.suiCheckbox.setCheckState(2)
-            self.ui.mllabel.setEnabled(True)
-            self.ui.messageLength.setEnabled(True)
-        else:
-            self.ui.suiCheckbox.setCheckState(0)
-            self.ui.mllabel.setEnabled(False)
-            self.ui.messageLength.setEnabled(False)
-        self.ui.messageLength.setText(self.settings["messageLength"])
-        if self.settings["deleteAllFromCacheOnExit"] == "1":
-            self.ui.removePostsOnExitCheckbox.setCheckState(2)
-        else:
-            self.ui.removePostsOnExitCheckbox.setCheckState(0)
-        try:
-            self.ui.updateInterval.setValue(int(self.settings["updateInterval"]))
-        except:
-            self.ui.updateInterval.setValue(10)
-            
-        if self.settings["remember_last_dent_id"] == "1":
-            self.ui.remember_last_dentid.setCheckState(2)
-            self.ui.dents_quantity.setEnabled(False)
-        else:
-            self.ui.remember_last_dentid.setCheckState(0)
-            self.ui.dents_quantity.setEnabled(True)
-            
-        self.ui.dents_quantity.setText(self.settings["fetch_on_startup"])
-
-        self.ui.okButton.clicked.connect(self.transmitSettings)
-        self.ui.cancelButton.clicked.connect(self.close)
-        
-        self.ui.suiCheckbox.stateChanged.connect(self.changing_sui_state)
-        self.ui.remember_last_dentid.stateChanged.connect(self.changing_rld_state)
-        
-    def changing_sui_state(self):
-        if self.ui.suiCheckbox.checkState() == 0:
-            self.ui.messageLength.setEnabled(False)
-        else:
-            self.ui.messageLength.setEnabled(True)
-            
-    def changing_rld_state(self):
-        if self.ui.remember_last_dentid.checkState() == 2:
-            self.ui.dents_quantity.setEnabled(False)
-        else:
-            self.ui.dents_quantity.setEnabled(True)       
-
-    def transmitSettings(self):
-        settingslist = []
-        settingslist.append(str(self.ui.accountName.text()))
-        settingslist.append(str(self.ui.password.text()))
-        settingslist.append(str(self.ui.serverName.text()))
-        if self.ui.useSecureConnectionCheckbox.isChecked():
-            settingslist.append(str(1))
-        else:
-            settingslist.append(str(0))
-        if self.ui.suiCheckbox.isChecked():
-            settingslist.append(str(1))
-        else:
-            settingslist.append(str(0))
-        if self.ui.messageLength.text():
-            settingslist.append(str(self.ui.messageLength.text()))
-        else:
-            settingslist.append(str(140))
-        if self.ui.removePostsOnExitCheckbox.isChecked():
-            settingslist.append(str(1))
-        else:
-            settingslist.append(str(0))
-        settingslist.append(self.ui.updateInterval.value())
-        if self.ui.remember_last_dentid.isChecked():
-            settingslist.append(str(1))
-        else:
-            settingslist.append(str(0))
-        settingslist.append(self.ui.dents_quantity.text())
-
-        mbc.emit(SIGNAL("ChangeSettings(PyQt_PyObject)"), settingslist)
         self.close()
 
 class StatisticsDialog(QDialog):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sun Sep  9 05:58:56 2012
+# Created: Sun Sep  9 11:03:52 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -114,6 +114,8 @@ class Ui_MainWindow(object):
         self.menu_Timelines.setObjectName(_fromUtf8("menu_Timelines"))
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName(_fromUtf8("menu_Help"))
+        self.menuAddons = QtGui.QMenu(self.menubar)
+        self.menuAddons.setObjectName(_fromUtf8("menuAddons"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -132,6 +134,8 @@ class Ui_MainWindow(object):
         self.action_About_Denter.setObjectName(_fromUtf8("action_About_Denter"))
         self.actionStatistics = QtGui.QAction(MainWindow)
         self.actionStatistics.setObjectName(_fromUtf8("actionStatistics"))
+        self.actionSpam_Music_data = QtGui.QAction(MainWindow)
+        self.actionSpam_Music_data.setObjectName(_fromUtf8("actionSpam_Music_data"))
         self.menu_File.addAction(self.action_Options)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Exit)
@@ -139,8 +143,10 @@ class Ui_MainWindow(object):
         self.menu_Help.addAction(self.actionStatistics)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About_Denter)
+        self.menuAddons.addAction(self.actionSpam_Music_data)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Timelines.menuAction())
+        self.menubar.addAction(self.menuAddons.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -173,10 +179,12 @@ class Ui_MainWindow(object):
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Timelines.setTitle(QtGui.QApplication.translate("MainWindow", "&Timelines", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuAddons.setTitle(QtGui.QApplication.translate("MainWindow", "Addons", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Options.setText(QtGui.QApplication.translate("MainWindow", "&Options", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Exit.setText(QtGui.QApplication.translate("MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Update_all.setText(QtGui.QApplication.translate("MainWindow", "&Update all", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About_Denter.setText(QtGui.QApplication.translate("MainWindow", "&About QTDenter...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatistics.setText(QtGui.QApplication.translate("MainWindow", "Statistics...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSpam_Music_data.setText(QtGui.QApplication.translate("MainWindow", "Spam &Music data", None, QtGui.QApplication.UnicodeUTF8))
 
