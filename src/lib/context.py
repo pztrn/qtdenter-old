@@ -57,6 +57,8 @@ class Context(QDialog):
         
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
+        else:
+            redent_button.hide()
         
         self.ui.context.addTopLevelItem(item)
         self.ui.context.setItemWidget(item, 0, avatar_widget)

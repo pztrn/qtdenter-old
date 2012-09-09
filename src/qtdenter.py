@@ -347,6 +347,8 @@ class Denter_Form(QMainWindow):
         
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
+            
+        if data["nickname"] == self.settings["user"]:
             redent_button.hide()
         
         list_widget = self.ui.timeline_list
