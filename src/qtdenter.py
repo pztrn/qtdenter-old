@@ -246,9 +246,14 @@ class Denter_Form(QMainWindow):
         self.start_timer(self.settings["updateInterval"])
         self.np = now_playing.Now_Playing(self.settings["player"], self.settings["player_string"])
         self.np.get_clementine_song()
-            
+        
     def init_connector(self):
-        self.auth = connector.Requester(self.settings["user"], self.settings["password"], self.settings["server"] + "/api/", self.settings["useSecureConnection"])
+        self.auth = connector.Requester(self.settings["user"], self.settings["password"], self.settings["server"] + "/api/", self.settings["useSecureConnection"], self.connect_callback)
+    
+    def connect_callback(self, data):
+        if data == "bad_credentials":
+            QMessageBox.critical(self, "QTDenter - Bad credentials", "Username and password you entered\nis incorrect.")
+            self.show_options_dialog()
         
     def start_timer(self, interval):
         try:
@@ -359,21 +364,24 @@ class Denter_Form(QMainWindow):
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
         
-        item = list_widget.currentItem()
-        dent_id = list_widget.currentItem().text(2).split(":")[0]
-        if list_widget.currentItem().text(3) == "not":
-            data = self.auth.favoritize_dent(dent_id, VERSION)
-            if data != "FAIL":
-                btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
-                list_widget.currentItem().setText(3, "favorited")
-                btn.setText("X")
-        else:
-            data = self.auth.defavoritize_dent(dent_id, VERSION)
-            if data != "FAIL":
-                btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
-                btn.findChild(QPushButton, "X")
-                list_widget.currentItem().setText(3, "not")
-                btn.setText(u"\u2665")
+        try:
+            item = list_widget.currentItem()
+            dent_id = list_widget.currentItem().text(2).split(":")[0]
+            if list_widget.currentItem().text(3) == "not":
+                data = self.auth.favoritize_dent(dent_id, VERSION)
+                if data != "FAIL":
+                    btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
+                    list_widget.currentItem().setText(3, "favorited")
+                    btn.setText("X")
+            else:
+                data = self.auth.defavoritize_dent(dent_id, VERSION)
+                if data != "FAIL":
+                    btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
+                    btn.findChild(QPushButton, "X")
+                    list_widget.currentItem().setText(3, "not")
+                    btn.setText(u"\u2665")
+        except:
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def redent_dent(self):
         if self.ui.tabWidget.currentIndex() == 0:
@@ -382,21 +390,27 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.mentions_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
-            
-        dent_id = list_widget.currentItem().text(2).split(":")[0]
-        self.auth.redent_dent(dent_id, VERSION)
+
+        try:
+            dent_id = list_widget.currentItem().text(2).split(":")[0]
+            self.auth.redent_dent(dent_id, VERSION)
+        except:
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def delete_dent(self):
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
-            
-        dent_id = list_widget.currentItem().text(2).split(":")[0]
-        data = self.auth.delete_dent(dent_id)
-        if data == "OK":
-            index = list_widget.indexOfTopLevelItem(list_widget.currentItem())
-            list_widget.takeTopLevelItem(index)
+
+        try:
+            dent_id = list_widget.currentItem().text(2).split(":")[0]
+            data = self.auth.delete_dent(dent_id)
+            if data == "OK":
+                index = list_widget.indexOfTopLevelItem(list_widget.currentItem())
+                list_widget.takeTopLevelItem(index)
+        except:
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
 
     def post_status(self, data):
         data = self.auth.post_dent(data, VERSION)
@@ -417,16 +431,19 @@ class Denter_Form(QMainWindow):
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
             
-        dent_id = list_widget.currentItem().text(2).split(":")[0]
-        to_username = list_widget.currentItem().text(2).split(":")[1]
-        dent_text = list_widget.currentItem().text(4)
-        params = {}
-        params["type"] = "reply"
-        params["reply_to_id"] = dent_id
-        params["nickname"] = to_username
-        params["text"] = dent_text
-        newpostD = NewPostDialog(self.settings["messageLength"], params)
-        newpostD.exec_()
+        try:
+            dent_id = list_widget.currentItem().text(2).split(":")[0]
+            to_username = list_widget.currentItem().text(2).split(":")[1]
+            dent_text = list_widget.currentItem().text(4)
+            params = {}
+            params["type"] = "reply"
+            params["reply_to_id"] = dent_id
+            params["nickname"] = to_username
+            params["text"] = dent_text
+            newpostD = NewPostDialog(self.settings["messageLength"], params)
+            newpostD.exec_()
+        except:
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def post_status_dialog(self):
         params = {
@@ -444,18 +461,16 @@ class Denter_Form(QMainWindow):
     def go_to_dent(self):
         try:
             item = self.ui.timeline_list.currentItem()
+            dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+            server_address = self.settings["server"]
+            if self.settings["useSecureConnection"] == 1:
+                server_address = "https://" + server_address
+            else:
+                server_address = "http://" + server_address
+        
+            QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
         except:
-            QMessageBox.error(self, "QTDenter - Choose fent first!", "You have to choose dent")
-        
-        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
-        
-        server_address = self.settings["server"]
-        if self.settings["useSecureConnection"] == 1:
-            server_address = "https://" + server_address
-        else:
-            server_address = "http://" + server_address
-        
-        QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def spam_music(self):
         music_data = self.np.get_music_info(self.settings["player"])
