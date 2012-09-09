@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sun Sep  9 03:59:45 2012
+# Created: Sun Sep  9 04:19:22 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,6 +53,32 @@ class Ui_MainWindow(object):
         self.timeline_list.header().setDefaultSectionSize(100)
         self.gridLayout_4.addWidget(self.timeline_list, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
+        self.tab_2 = QtGui.QWidget()
+        self.tab_2.setObjectName(_fromUtf8("tab_2"))
+        self.gridLayout = QtGui.QGridLayout(self.tab_2)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.mentions_list = QtGui.QTreeWidget(self.tab_2)
+        self.mentions_list.setMinimumSize(QtCore.QSize(0, 0))
+        self.mentions_list.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.mentions_list.setMouseTracking(True)
+        self.mentions_list.setEditTriggers(QtGui.QAbstractItemView.CurrentChanged|QtGui.QAbstractItemView.DoubleClicked)
+        self.mentions_list.setAlternatingRowColors(True)
+        self.mentions_list.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.mentions_list.setIconSize(QtCore.QSize(64, 64))
+        self.mentions_list.setTextElideMode(QtCore.Qt.ElideRight)
+        self.mentions_list.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.mentions_list.setIndentation(0)
+        self.mentions_list.setUniformRowHeights(False)
+        self.mentions_list.setItemsExpandable(False)
+        self.mentions_list.setAnimated(True)
+        self.mentions_list.setWordWrap(False)
+        self.mentions_list.setObjectName(_fromUtf8("mentions_list"))
+        self.mentions_list.header().setVisible(False)
+        self.mentions_list.header().setDefaultSectionSize(100)
+        self.gridLayout.addWidget(self.mentions_list, 0, 0, 1, 1)
+        self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -106,6 +132,13 @@ class Ui_MainWindow(object):
         self.timeline_list.headerItem().setText(3, QtGui.QApplication.translate("MainWindow", "denter_screen_name", None, QtGui.QApplication.UnicodeUTF8))
         self.timeline_list.headerItem().setText(4, QtGui.QApplication.translate("MainWindow", "dent_text", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Timeline", None, QtGui.QApplication.UnicodeUTF8))
+        self.mentions_list.setSortingEnabled(True)
+        self.mentions_list.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "Avatar", None, QtGui.QApplication.UnicodeUTF8))
+        self.mentions_list.headerItem().setText(1, QtGui.QApplication.translate("MainWindow", "Dent", None, QtGui.QApplication.UnicodeUTF8))
+        self.mentions_list.headerItem().setText(2, QtGui.QApplication.translate("MainWindow", "dent_id", None, QtGui.QApplication.UnicodeUTF8))
+        self.mentions_list.headerItem().setText(3, QtGui.QApplication.translate("MainWindow", "denter_screen_name", None, QtGui.QApplication.UnicodeUTF8))
+        self.mentions_list.headerItem().setText(4, QtGui.QApplication.translate("MainWindow", "dent_text", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Mentions", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Timelines.setTitle(QtGui.QApplication.translate("MainWindow", "&Timelines", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))

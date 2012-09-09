@@ -66,8 +66,10 @@ class Denter_Form(QMainWindow):
         common.set_qtdenter_path()
 
         self._hidden = 0
-        self.inserted_dents_ids = []
+        self.inserted_timeline_dents_ids = []
+        self.inserted_mentions_dents_ids = []
         self._new_dents = 0
+        self._new_mentions = 0
         self._changed_credentials = False
         
         # Tray icon
@@ -173,6 +175,13 @@ class Denter_Form(QMainWindow):
         self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
         self.ui.timeline_list.connect(self.ui.timeline_list, SIGNAL("itemEntered(QTreeWidgetItem, int)"), self.set_current_item)
         
+        self.ui.mentions_list.setSortingEnabled(True)
+        self.ui.mentions_list.sortByColumn(2, Qt.DescendingOrder)
+        for column in range(2, 5):
+            self.ui.mentions_list.setColumnHidden(column, True)
+        self.ui.mentions_list.setColumnWidth(0, 65)
+        self.ui.mentions_list.itemActivated.connect(self.reply_to_dent)
+        
         self.list_item = list_item.list_item()
         
         # Init notifications
@@ -189,6 +198,8 @@ class Denter_Form(QMainWindow):
         
             home_timeline = self.auth.get_home_timeline()
             self.list_handler.add_data("home", home_timeline)
+            mentions = self.auth.get_mentions()
+            self.list_handler.add_data("mentions", mentions)
         except:
             print "No auth data specified"
             
@@ -212,12 +223,16 @@ class Denter_Form(QMainWindow):
     def update_timelines(self):
         home_timeline = self.auth.get_home_timeline()
         self.list_handler.add_data("home", home_timeline)
+        mentions = self.auth.get_mentions()
+        self.list_handler.add_data("mentions", mentions)
             
     def lists_callback(self, list_type, data):
         if list_type == "home":
             self.add_to_timeline_iterator(data)
         elif list_type == "home_avatar":
             self.update_timeline_avatar(data)
+        elif list_type == "mentions":
+            self.add_to_mentions_iterator(data)
         elif list_type == "end":
             curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             self.time_updated_action.setText("<b>Last updated on: {0}</b>".format(curtime))
@@ -233,14 +248,22 @@ class Denter_Form(QMainWindow):
             
             
     def add_to_timeline_iterator(self, data):
-        if data["id"] not in self.inserted_dents_ids:
-            self.inserted_dents_ids.append(data["id"])
-            self.add_to_timeline(data)
+        if data["id"] not in self.inserted_timeline_dents_ids:
+            self.inserted_timeline_dents_ids.append(data["id"])
+            self.add_dent_to_widget("timeline", data)
             self._new_dents += 1
         else:
             pass
-                    
-    def add_to_timeline(self, data):
+
+    def add_to_mentions_iterator(self, data):
+        if data["id"] not in self.inserted_mentions_dents_ids:
+            self.inserted_mentions_dents_ids.append(data["id"])
+            self.add_dent_to_widget("mentions", data)
+            self._new_mentions += 1
+        else:
+            pass
+
+    def add_dent_to_widget(self, list_type, data):
         item_data = self.list_item.process_item(data)
         
         item = item_data[0]
@@ -254,33 +277,47 @@ class Denter_Form(QMainWindow):
         redent_button.clicked.connect(self.redent_dent)
         like_button.clicked.connect(self.like_dent)
         
-        self.ui.timeline_list.addTopLevelItem(item)
-        self.ui.timeline_list.setItemWidget(item, 0, avatar_widget)
-        self.ui.timeline_list.setItemWidget(item, 1, post_widget)
+        list_widget = self.ui.timeline_list
+        if list_type == "mentions":
+            list_widget = self.ui.mentions_list
+        
+        list_widget.addTopLevelItem(item)
+        list_widget.setItemWidget(item, 0, avatar_widget)
+        list_widget.setItemWidget(item, 1, post_widget)
         
     def update_timeline_avatar(self, name):
         print name
         
     def like_dent(self):
-        item = self.ui.timeline_list.currentItem()
-        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
-        if self.ui.timeline_list.currentItem().text(3) == "not":
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+        
+        item = list_widget.currentItem()
+        dent_id = list_widget.currentItem().text(2).split(":")[0]
+        if list_widget.currentItem().text(3) == "not":
             data = self.auth.favoritize_dent(dent_id, VERSION)
             if data != "FAIL":
-                btn = self.ui.timeline_list.findChild(QPushButton, "like_button_" + dent_id)
+                btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
                 #btn.findChild(QPushButton, u"\u267a")
-                self.ui.timeline_list.currentItem().setText(3, "favorited")
+                list_widget.currentItem().setText(3, "favorited")
                 btn.setText("X")
         else:
             data = self.auth.defavoritize_dent(dent_id, VERSION)
             if data != "FAIL":
-                btn = self.ui.timeline_list.findChild(QPushButton, "like_button_" + dent_id)
+                btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
                 btn.findChild(QPushButton, "X")
-                self.ui.timeline_list.currentItem().setText(3, "not")
+                list_widget.currentItem().setText(3, "not")
                 btn.setText(u"\u2665")
         
     def redent_dent(self):
-        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+            
+        dent_id = list_widget.currentItem().text(2).split(":")[0]
         self.auth.redent_dent(dent_id, VERSION)
 
     def post_status(self, data):
@@ -292,9 +329,14 @@ class Denter_Form(QMainWindow):
         self.list_handler.add_data("home", [data])
         
     def reply_to_dent(self):
-        dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
-        to_username = self.ui.timeline_list.currentItem().text(2).split(":")[1]
-        dent_text = self.ui.timeline_list.currentItem().text(4)
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+            
+        dent_id = list_widget.currentItem().text(2).split(":")[0]
+        to_username = list_widget.currentItem().text(2).split(":")[1]
+        dent_text = list_widget.currentItem().text(4)
         params = {}
         params["reply_to_id"] = dent_id
         params["nickname"] = to_username

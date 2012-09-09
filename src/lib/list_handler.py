@@ -29,7 +29,7 @@ class List_Handler(QThread):
             
             self.download_avatar(item["user"]["profile_image_url"], item["user"]["screen_name"])
             
-            self.callback("home", item_data)
+            self.callback(list_type, item_data)
         
         self.callback("end", "")
         

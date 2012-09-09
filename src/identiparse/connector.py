@@ -116,3 +116,17 @@ class Requester():
             return data
         except urllib2.HTTPError, e:
             return e
+
+    def get_mentions(self):
+        print "START"
+        request = urllib2.Request(self._api_url + "statuses/mentions.json")
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        try:
+            result = urllib2.urlopen(request)
+            data = json.loads(result.read())
+            print "DATA RECEIVED"
+
+            return data
+        except urllib2.HTTPError, e:
+            return e
