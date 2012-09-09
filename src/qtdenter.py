@@ -72,6 +72,8 @@ class Denter_Form(QMainWindow):
         self._new_mentions = 0
         self._changed_credentials = False
         
+        QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
+        
         # Tray icon
         self.trayIcon = QSystemTrayIcon(QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"), self)
         self.trayIcon.setVisible(True)
@@ -349,7 +351,6 @@ class Denter_Form(QMainWindow):
             data = self.auth.favoritize_dent(dent_id, VERSION)
             if data != "FAIL":
                 btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
-                #btn.findChild(QPushButton, u"\u267a")
                 list_widget.currentItem().setText(3, "favorited")
                 btn.setText("X")
         else:
@@ -524,23 +525,24 @@ class NewPostDialog(QDialog):
 
         self.messageLength = int(messageLength)
         self.reply = False
+        self.direct = False
         
-        if parameters:
+        self.params = parameters
+        if self.params:
             try:
-                self.params = parameters
                 self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
                 self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
                 self.reply = True
             except:
                 # It's direct message. Passing
-                pass
-
+                self.direct = True
+            
         self._messageIsTooLong = 0
 
         self.ui.postData.textChanged.connect(self.countCharacters)
         self.ui.cancelButton.clicked.connect(self.close)
         
-        if self.params["direct"]:
+        if self.direct:
             self.ui.label.setText("Enter nickname of person to whom send direct message like:\n@@username")
             self.ui.postButton.clicked.connect(self.post_direct_message)
         else:
