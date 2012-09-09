@@ -1,0 +1,14 @@
+
+[Desktop Entry]
+Version=1.0
+Name=QTDenter
+Name[ru]=QTDenter
+GenericName=Identi.ca/Status.Net client
+GenericName[ru]=Клиент для Identi.ca/Status.Net
+Comment=
+Comment[ru]=
+Exec=/usr/bin/qtdenter
+Icon=qtdenter
+Terminal=false
+Type=Application
+Categories=Internet;

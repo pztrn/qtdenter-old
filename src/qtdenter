@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# PUrT Launching script
+
+pythonver=$(python -c "import platform; print platform.python_version()[0:3]" 2>/dev/null)
+
+if [[ $pythonver == "" ]]; then
+    python_interpretator="python2"
+    pythonver=$(python2 -c "import platform; print platform.python_version()[0:3]" 2>/dev/null)
+else
+    python_interpretator="python"
+fi
+
+CLIENT_DIR="/usr/lib/python$pythonver/site-packages/qtdenter"
+
+$python_interpretator $CLIENT_DIR/qtdenter.py
