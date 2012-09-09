@@ -105,19 +105,28 @@ class Denter_Form(QMainWindow):
             self.settings["isSingle"] = self.qsettings.value("isSingle").toString()
             self.settings["deleteAllFromCacheOnExit"] = self.qsettings.value("deleteAllFromCacheOnExit").toString()
             self.settings["updateInterval"] = self.qsettings.value("updateInterval").toString()
+            self.settings["last_dent_id"] = self.qsettings.value("last_dent_id").toString()
+            
         except:
             QMessageBox.critical(self, "denter - No accounts", "Setup an account in Options!")
 
         try:
             self.settings["messageLength"] = self.qsettings.value("messageLength").toString()
         except:
-            self.settings["messageLength"] = 140
+            self.settings["messageLength"] = "140"
 
         try:
             self.restoreGeometry(self.qsettings.value("geometry").toByteArray())
             self.restoreState(self.qsettings.value("state").toByteArray())
         except:
             pass
+            
+        try:
+            self.settings["remember_last_dent_id"] = self.qsettings.value("remember_last_dent_id").toString()
+            self.settings["fetch_on_startup"] = self.qsettings.value("fetch_on_startup").toString()
+        except:
+            self.settings["remember_last_dent_id"] = "0"
+            self.settings["fetch_on_startup"] = "20"
 
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
             database.createDB()
@@ -192,13 +201,24 @@ class Denter_Form(QMainWindow):
             print "Failed to init pynotify"
             
         self.show()
-        # Initialize auther
+        # Initialize auther and get timelines for first time
         try:
             self.init_connector()
-        
-            home_timeline = self.auth.get_home_timeline()
+            
+            if not self.settings["remember_last_dent_id"] == 1:
+                opts = {"count"     : None,
+                        "from_id"   : self.settings["last_dent_id"], 
+                        "name"      : self.settings["user"]
+                        }
+            else:
+                opts = {"count"     : self.settings["fetch_on_startup"],
+                        "from_id"   : None,
+                        "name"      : self.settings["user"]
+                        }
+                
+            home_timeline = self.auth.get_home_timeline(opts)
             self.list_handler.add_data("home", home_timeline)
-            mentions = self.auth.get_mentions()
+            mentions = self.auth.get_mentions(opts)
             self.list_handler.add_data("mentions", mentions)
         except:
             print "No auth data specified"
@@ -221,9 +241,13 @@ class Denter_Form(QMainWindow):
             print "Failed to launch timer!"
             
     def update_timelines(self):
-        home_timeline = self.auth.get_home_timeline()
+        opts = {"count"     : None,
+                "from_id"   : None,
+                "name"      : self.settings["user"]
+                }
+        home_timeline = self.auth.get_home_timeline(opts)
         self.list_handler.add_data("home", home_timeline)
-        mentions = self.auth.get_mentions()
+        mentions = self.auth.get_mentions(opts)
         self.list_handler.add_data("mentions", mentions)
             
     def lists_callback(self, list_type, data):
@@ -398,6 +422,8 @@ class Denter_Form(QMainWindow):
         self.settings["messageLength"] = data[5]
         self.settings["deleteAllFromCacheOnExit"] = data[6]
         self.settings["updateInterval"] = data[7]
+        self.settings["remember_last_dent_id"] = data[8]
+        self.settings["fetch_on_startup"] = data[9]
         self.init_connector()
         self.start_timer(self.settings["updateInterval"])
         
@@ -439,8 +465,15 @@ class Denter_Form(QMainWindow):
             self.qsettings.setValue("messageLength", self.settings["messageLength"])
             self.qsettings.setValue("deleteAllFromCacheOnExit", self.settings["deleteAllFromCacheOnExit"])
             self.qsettings.setValue("updateInterval", self.settings["updateInterval"])
+            self.qsettings.setValue("remember_last_dent_id", self.settings["remember_last_dent_id"])
+            self.qsettings.setValue("fetch_on_startup", self.settings["fetch_on_startup"])
             self.qsettings.setValue("state", self.saveState())
             self.qsettings.setValue("geometry", self.saveGeometry())
+            if self.settings["remember_last_dent_id"] == "1":
+                root = self.ui.timeline_list.invisibleRootItem()
+                last_item = root.child(0)
+                dent_id = last_item.text(2).split(":")[0]
+                self.qsettings.setValue("last_dent_id", dent_id)
         else:
             event.ignore()
 
@@ -525,17 +558,33 @@ class SettingsDialog(QDialog):
             self.ui.updateInterval.setValue(int(self.settings["updateInterval"]))
         except:
             self.ui.updateInterval.setValue(10)
+            
+        if self.settings["remember_last_dent_id"] == "1":
+            self.ui.remember_last_dentid.setCheckState(2)
+            self.ui.dents_quantity.setEnabled(False)
+        else:
+            self.ui.remember_last_dentid.setCheckState(0)
+            self.ui.dents_quantity.setEnabled(True)
+            
+        self.ui.dents_quantity.setText(self.settings["fetch_on_startup"])
 
         self.ui.okButton.clicked.connect(self.transmitSettings)
         self.ui.cancelButton.clicked.connect(self.close)
         
-        self.ui.suiCheckbox.stateChanged.connect(self.changing_state_of_checkbox)
+        self.ui.suiCheckbox.stateChanged.connect(self.changing_sui_state)
+        self.ui.remember_last_dentid.stateChanged.connect(self.changing_rld_state)
         
-    def changing_state_of_checkbox(self):
+    def changing_sui_state(self):
         if self.ui.suiCheckbox.checkState() == 0:
             self.ui.messageLength.setEnabled(False)
         else:
             self.ui.messageLength.setEnabled(True)
+            
+    def changing_rld_state(self):
+        if self.ui.remember_last_dentid.checkState() == 2:
+            self.ui.dents_quantity.setEnabled(False)
+        else:
+            self.ui.dents_quantity.setEnabled(True)       
 
     def transmitSettings(self):
         settingslist = []
@@ -559,6 +608,11 @@ class SettingsDialog(QDialog):
         else:
             settingslist.append(str(0))
         settingslist.append(self.ui.updateInterval.value())
+        if self.ui.remember_last_dentid.isChecked():
+            settingslist.append(str(1))
+        else:
+            settingslist.append(str(0))
+        settingslist.append(self.ui.dents_quantity.text())
 
         mbc.emit(SIGNAL("ChangeSettings(PyQt_PyObject)"), settingslist)
         self.close()

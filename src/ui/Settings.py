@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'settings.ui'
 #
-# Created: Sat Sep  8 23:30:11 2012
+# Created: Sun Sep  9 04:48:53 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -104,13 +104,31 @@ class Ui_Dialog(object):
         self.updateInterval.setMaximum(1000)
         self.updateInterval.setObjectName(_fromUtf8("updateInterval"))
         self.formLayout_2.setWidget(1, QtGui.QFormLayout.FieldRole, self.updateInterval)
+        self.label_10 = QtGui.QLabel(self.tab1)
+        self.label_10.setObjectName(_fromUtf8("label_10"))
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_10)
+        self.dents_quantity = QtGui.QLineEdit(self.tab1)
+        self.dents_quantity.setObjectName(_fromUtf8("dents_quantity"))
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.FieldRole, self.dents_quantity)
+        self.label_11 = QtGui.QLabel(self.tab1)
+        self.label_11.setObjectName(_fromUtf8("label_11"))
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_11)
+        self.remember_last_dentid = QtGui.QCheckBox(self.tab1)
+        self.remember_last_dentid.setText(_fromUtf8(""))
+        self.remember_last_dentid.setObjectName(_fromUtf8("remember_last_dentid"))
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.FieldRole, self.remember_last_dentid)
         self.gridLayout_3.addLayout(self.formLayout_2, 0, 0, 1, 1)
-        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem1, 4, 0, 1, 1)
         self.label_8 = QtGui.QLabel(self.tab1)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
+        self.label_8.setSizePolicy(sizePolicy)
         self.label_8.setWordWrap(True)
         self.label_8.setObjectName(_fromUtf8("label_8"))
-        self.gridLayout_3.addWidget(self.label_8, 3, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label_8, 1, 0, 1, 1)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.gridLayout_3.addItem(spacerItem1, 2, 0, 1, 1)
         self.tabWidget.addTab(self.tab1, _fromUtf8(""))
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -130,7 +148,7 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "mbc Settings", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "QTDenter Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Account name:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Server:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Password:", None, QtGui.QApplication.UnicodeUTF8))
@@ -151,11 +169,16 @@ class Ui_Dialog(object):
         self.label_5.setText(QtGui.QApplication.translate("Dialog", "Remove all posts from cache on exit?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("Dialog", "Update interval:", None, QtGui.QApplication.UnicodeUTF8))
         self.updateInterval.setSuffix(QtGui.QApplication.translate("Dialog", " minutes", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(QtGui.QApplication.translate("Dialog", "Quantity of dents to fetch on startup:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("Dialog", "Remember last dent id?", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'PT Sans\'; font-size:10pt; font-weight:400; font-style:normal;\"><hr>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Select &quot;<span style=\" font-weight:600; font-style:italic;\">Remove all posts from cache on exit</span>&quot; if you want to. But it could result in slower startup.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"</style></head><body style=\" font-family:\'PT Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<hr />\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Select &quot;<span style=\" font-weight:600; font-style:italic;\">Remove all posts from cache on exit</span>&quot; if you want to. But it could result in slower startup.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; font-style:italic;\">Quantity of dents to fetch at startup</span>  - self-speaking. But if &quot;<span style=\" font-weight:600; font-style:italic;\">Remember last dent id?</span>&quot; is checked - quantity will not have any power.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab1), QtGui.QApplication.translate("Dialog", "Timelines", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelButton.setText(QtGui.QApplication.translate("Dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.okButton.setText(QtGui.QApplication.translate("Dialog", "Save and close", None, QtGui.QApplication.UnicodeUTF8))
