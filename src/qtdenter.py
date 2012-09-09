@@ -76,6 +76,10 @@ class Denter_Form(QMainWindow):
         QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
         
         # Tray icon
+        try:
+            QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
+        except:
+            QIcon("/usr/share/pixmaps/qtdenter.png")
         self.trayIcon = QSystemTrayIcon(QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"), self)
         self.trayIcon.setVisible(True)
         self.connect(self.trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.check_for_visibility)
