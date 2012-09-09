@@ -102,7 +102,7 @@ class Requester():
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
         request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
-        print "REQUEST FORMED"
+        print "REDENT REQUEST FORMED"
         
         try:
             result = urllib2.urlopen(request, encoded_data)
@@ -164,7 +164,7 @@ class Requester():
         try:
             result = urllib2.urlopen(request)
             data = json.loads(result.read())
-
+            
             return data
         except urllib2.HTTPError, e:
             self.callback("bad_credentials")
@@ -195,6 +195,20 @@ class Requester():
                 url = url + "count={0}&".format(opts["count"])
             if opts["from_id"]:
                 url = url + "since_id={0}&".format(opts["from_id"])
+        
+        request = urllib2.Request(url)
+        base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
+        request.add_header("Authorization", "Basic %s" % base64string)
+        try:
+            result = urllib2.urlopen(request)
+            data = json.loads(result.read())
+
+            return data
+        except urllib2.HTTPError, e:
+            self.callback("bad_credentials")
+            
+    def get_conversation(self, conversation_id):
+        url = self._api_url + "/statusnet/conversation/{0}.json?count=1000".format(conversation_id)
         
         request = urllib2.Request(url)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')

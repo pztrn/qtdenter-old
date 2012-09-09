@@ -4,8 +4,8 @@
 import os, sys, json, urllib2, ConfigParser, time, commands
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui import MainWindow, NewPost, About, Stat
-from lib import database, list_handler, list_item, common, options_dialog, information
+from ui import MainWindow, NewPost, About, Stat, Context
+from lib import list_handler, list_item, common, options_dialog, information, context, new_post
 from addons import now_playing
 from identiparse import connector
 import pynotify
@@ -142,9 +142,6 @@ class Denter_Form(QMainWindow):
         self.ui.actionStatistics.triggered.connect(self.show_information)
         self.ui.actionSpam_Music_data.triggered.connect(self.spam_music)
 
-        self.connect(self, SIGNAL("PostData(PyQt_PyObject)"), self.post_status)
-        self.connect(self, SIGNAL("SendReply(PyQt_PyObject)"), self.send_reply)
-        self.connect(self, SIGNAL("SendDirectMessage(PyQt_PyObject)"), self.send_direct_message)
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("HideForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("ShowOptions()"), self.show_options_dialog)
@@ -336,13 +333,17 @@ class Denter_Form(QMainWindow):
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
+        context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
         destroy_button.clicked.connect(self.delete_dent)
         dentid_button.clicked.connect(self.go_to_dent)
         redent_button.clicked.connect(self.redent_dent)
         like_button.clicked.connect(self.like_dent)
+        if data["in_reply_to_screen_name"]:
+            context_button.clicked.connect(self.show_context)
         
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
+            redent_button.hide()
         
         list_widget = self.ui.timeline_list
         if list_type == "mentions":
@@ -441,7 +442,7 @@ class Denter_Form(QMainWindow):
             params["reply_to_id"] = dent_id
             params["nickname"] = to_username
             params["text"] = dent_text
-            newpostD = NewPostDialog(self.settings["messageLength"], params)
+            newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
             newpostD.exec_()
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
@@ -450,19 +451,33 @@ class Denter_Form(QMainWindow):
         params = {
                     "type": "new_dent"
                 }
-        newpostD = NewPostDialog(self.settings["messageLength"], params)
+        newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
         newpostD.exec_()
         
     def post_direct_message_dialog(self):
         params = {}
         params["type"] = "direct"
-        newpostD = NewPostDialog(self.settings["messageLength"], params)
+        newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
         newpostD.exec_()
         
+    def new_post_callback(self, type, data):
+        if type == "post_data":
+            self.post_status(data)
+        elif type == "send_reply":
+            self.send_reply(data)
+        elif type == "send_direct_message":
+            self.send_direct_message(data)
+        
     def go_to_dent(self):
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
         try:
-            item = self.ui.timeline_list.currentItem()
-            dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+            item = list_widget.currentItem()
+            dent_id = list_widget.currentItem().text(2).split(":")[0]
             server_address = self.settings["server"]
             if self.settings["useSecureConnection"] == 1:
                 server_address = "https://" + server_address
@@ -470,6 +485,21 @@ class Denter_Form(QMainWindow):
                 server_address = "http://" + server_address
         
             QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
+        except:
+            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
+            
+    def show_context(self):
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
+            
+        try:
+            conversation_id = list_widget.currentItem().text(2).split(":")[2]
+            contextD = context.Context(self.auth, conversation_id, self.settings, VERSION)
+            contextD.exec_()
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
@@ -486,7 +516,7 @@ class Denter_Form(QMainWindow):
                     "direct": False,
                     "type": "insert"
                 }
-        newpostD = NewPostDialog(self.settings["messageLength"], params)
+        newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
         newpostD.exec_()
     
     def set_current_item(self, item, column):
@@ -579,77 +609,6 @@ class Denter_Form(QMainWindow):
                 self.qsettings.setValue("last_dent_id", dent_id)
         else:
             event.ignore()
-
-class NewPostDialog(QDialog):
-    def __init__(self, messageLength, parameters, parent = None):
-        QDialog.__init__(self, parent)
-        self.ui = NewPost.Ui_Dialog()
-        self.ui.setupUi(self)
-
-        self.messageLength = int(messageLength)
-        self.reply = False
-        self.direct = False
-        
-        self.params = parameters
-        if self.params["type"] == "reply":
-            self.ui.label.setText("Replying to {0}:<br />{1}".format(self.params["nickname"], self.params["text"]))
-            self.ui.postData.appendPlainText("@{0} ".format(self.params["nickname"]))
-            self.reply = True
-        elif self.params["type"] == "direct":
-            self.direct = True
-        elif self.params["type"] == "insert":
-            self.ui.postData.appendPlainText(self.params["text"])
-            
-        self._messageIsTooLong = 0
-
-        self.ui.postData.textChanged.connect(self.countCharacters)
-        self.ui.cancelButton.clicked.connect(self.close)
-        
-        if self.direct:
-            self.ui.label.setText("Enter nickname of person to whom send direct message like:\n@@username")
-            self.ui.postButton.clicked.connect(self.post_direct_message)
-        else:
-            self.ui.postButton.clicked.connect(self.postData)
-
-    def countCharacters(self):
-        self.textLenght = len(self.ui.postData.toPlainText())
-        self.enteredSymbols = self.messageLength - self.textLenght
-        if not self.messageLength == 0:
-            if self.enteredSymbols < 0:
-                self.ui.symbolCount.setText("<div style='color:red; font-weight:bold;'>" + str(self.enteredSymbols) + "/" + str(self.messageLength) + "</div>")
-                self._messageIsTooLong = 1
-            else:
-                self.ui.symbolCount.setText(str(self.enteredSymbols) + "/" + str(self.messageLength))
-                self._messageIsTooLong = 0
-        else:
-            self.ui.symbolCount.setText("<div style='font-weight:bold;'>No characters limit</div>")
-
-    def postData(self):
-        if self._messageIsTooLong == 1:
-            QMessageBox.critical(self, self.tr("New post - Message is too long"), self.tr("Message you entered is too long. Maximum message length is {0} symbols, you entered {1} symbols.").format(str(self.messageLength), str(self.textLenght)))
-        else:
-            try:
-                if self.reply:
-                    data = {}
-                    data["text"] = self.ui.postData.toPlainText()
-                    data["reply_to_id"] = self.params["reply_to_id"]
-                    mbc.emit(SIGNAL("SendReply(PyQt_PyObject)"), data)
-                else:
-                    mbc.emit(SIGNAL("PostData(PyQt_PyObject)"), str(QString.toUtf8(self.ui.postData.toPlainText())))
-            except:
-                print "FAILED TO SIGNAL!"
-                
-            self.close()
-                
-    def post_direct_message(self):
-        message = str(QString.toUtf8(self.ui.postData.toPlainText()))
-        data = {}
-        data["nickname"] = message.split(" ")[0][2:]
-        data["message"] = message.split(" ")[1]
-        
-        mbc.emit(SIGNAL("SendDirectMessage(PyQt_PyObject)"), data)
-
-        self.close()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

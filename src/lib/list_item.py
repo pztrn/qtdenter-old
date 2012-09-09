@@ -9,13 +9,21 @@ class list_item:
         pass
         
     def process_item(self, data):
-        post_data = QLabel()
-        
         if data["in_reply_to_screen_name"]:
             nickname = data["nickname"] + " " + u"\u2794" + " " + data["in_reply_to_screen_name"]
+
+            context_button = QPushButton()
+            context_button.setFixedHeight(20)
+            context_button.setText("Context")
+            context_button.setObjectName("context_button_" + str(data["conversation_id"]))
+            context_button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+
         else:
             nickname = data["nickname"]
+            
+        post_data_info = QLabel()
         
+        post_data = QLabel()
         post_data.setText(QString.fromUtf8("<b>{0}</b> <span style='font-size:8pt;'>{2}</span><p style='padding:0;'>{1}</p>".format(nickname, data["text"], data["date"])))
         post_data.setWordWrap(True)
         post_data.setAlignment(Qt.AlignTop)
@@ -103,6 +111,8 @@ class list_item:
         post_info_layout.addWidget(dentid_button)
         post_info_layout.addWidget(source)
         post_info_layout.addWidget(buttons_widget)
+        if data["in_reply_to_screen_name"]:
+            post_info_layout.addWidget(context_button)
         post_info_layout.addItem(spacer2)
         post_info_layout.setAlignment(Qt.AlignTop)
         post_info_layout.setContentsMargins(9, 0, 9, 0)
@@ -121,7 +131,7 @@ class list_item:
         
         item = QTreeWidgetItem()
         
-        item.setText(2, str(data["id"]) + ":" + data["nickname"])
+        item.setText(2, str(data["id"]) + ":" + data["nickname"] + ":" + str(data["conversation_id"]))
         if data["in_favorites"]:
             item.setText(3, "favorited")
         else:
