@@ -101,6 +101,7 @@ class Now_Playing():
         
             # Making dict with track data
             track_data["condition"] = "OK"
+            print data
             for item in data:
                 index = data.index(item)
                 if "Artist" in item:

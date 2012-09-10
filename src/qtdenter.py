@@ -729,9 +729,18 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - FAIL!", "Failed to get track data!")
         else:
             spam_string = self.qsettings.value("player_string").toString()
-            spam_string = spam_string.replace("$artist", music_data["artist"])
-            spam_string = spam_string.replace("$album", music_data["album"])
-            spam_string = spam_string.replace("$trackname", music_data["trackname"])
+            if "artist" in music_data:
+                spam_string = spam_string.replace("$artist", music_data["artist"])
+            else:
+                spam_string = spam_string.replace("$artist", "No artist")
+            if "album" in music_data:
+                spam_string = spam_string.replace("$album", music_data["album"])
+            else:
+                spam_string = spam_string.replace("$album", "No album")
+            if "trackname" in music_data:
+                spam_string = spam_string.replace("$trackname", music_data["trackname"])
+            else:
+                spam_string = spam_string.replace("$trackname", "No title")
             spam_string = spam_string.replace("$player", str(self.settings["player"]).lower())
             spam_string = spam_string.replace("\"", "")
             params = {
