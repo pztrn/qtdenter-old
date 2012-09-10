@@ -723,6 +723,8 @@ class Denter_Form(QMainWindow):
         music_data = self.np.get_music_info(self.settings["player"])
         if music_data == "failed-connect":
             QMessageBox.critical(self, "QTDenter - FAIL!", "Failed to connect to server!")
+        elif music_data == "not-running":
+            QMessageBox.critical(self, "QTDenter - FAIL!", "{0} not running!".format(self.settings["player"]))
         elif music_data == "failed-getsong" or music_data["condition"] == "FAIL":
             QMessageBox.critical(self, "QTDenter - FAIL!", "Failed to get track data!")
         else:

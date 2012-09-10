@@ -19,7 +19,7 @@ class Now_Playing():
         self.settings = settings
 
         # Defining known player list
-        players = ["MPD", "Clementine", "Exaile"]
+        players = ["MPD", "Clementine", "Exaile", "DeaDBeeF"]
         needs_settings = ["MPD"]
         players.sort()
         
@@ -41,6 +41,8 @@ class Now_Playing():
             return self.get_clementine_song()
         elif player == "Exaile":
             return self.get_exaile_song()
+        elif player == "DeaDBeeF":
+            return self.get_deadbeef_song()
     
     def get_clementine_song(self):
         """
@@ -48,10 +50,13 @@ class Now_Playing():
         """
         track_data = {}
         try:
-            session_bus = dbus.SessionBus()
-            player = session_bus.get_object('org.mpris.clementine', '/Player')
-            iface = dbus.Interface(player, dbus_interface='org.freedesktop.MediaPlayer')
-            metadata = iface.GetMetadata()
+            try:
+                session_bus = dbus.SessionBus()
+                player = session_bus.get_object('org.mpris.clementine', '/Player')
+                iface = dbus.Interface(player, dbus_interface='org.freedesktop.MediaPlayer')
+                metadata = iface.GetMetadata()
+            except:
+                return "not-running"
         
             # Making dict with track data
             track_data["condition"] = "OK"
@@ -115,9 +120,12 @@ class Now_Playing():
         """
         track_data = {}
         
-        session_bus = dbus.SessionBus()
-        player = session_bus.get_object("org.exaile.Exaile","/org/exaile/Exaile")
-        iface = dbus.Interface(player, "org.exaile.Exaile")
+        try:
+            session_bus = dbus.SessionBus()
+            player = session_bus.get_object("org.exaile.Exaile","/org/exaile/Exaile")
+            iface = dbus.Interface(player, "org.exaile.Exaile")
+        except:
+            return "not-running"
         
         if iface.IsPlaying:
             # Making dict with track data
@@ -127,3 +135,26 @@ class Now_Playing():
             track_data["album"] = iface.GetTrackAttr("album")
             return track_data
 
+    def get_deadbeef_song(self):
+        """
+        Getting data from DeaDBeeF
+        """
+        track_data = {}
+        
+        try:        
+            command = "deadbeef --nowplaying %a\<\>\<\>%t\<\>\<\>%b".split(" ")
+            p = subprocess.Popen(command, stdout=subprocess.PIPE)
+            data = p.communicate()[0]
+            data = data.split("\<\>\<\>")
+            if "nothing" in data:
+                return "not-running"
+        except:
+            return "not-running"
+        
+        track_data["condition"] = "OK"
+        track_data["artist"] = data[0]
+        track_data["trackname"] = data[1]
+        track_data["album"] = data[2]
+        return track_data
+            
+        
