@@ -602,17 +602,18 @@ class Denter_Form(QMainWindow):
         Post status requester
         """
         data = self.auth.post_dent(data, VERSION)
-        self.list_handler.add_data("home", [data])
+        self.update_timelines()
         
     def send_reply(self, data):
         """
         Send reply callback
         """
         data = self.auth.send_reply(data, VERSION)
-        self.list_handler.add_data("home", [data])
+        self.update_timelines()
         
     def send_direct_message(self, data):
         self.auth.send_direct_message(data, VERSION)
+        self.update_timelines()
         
     def reply_to_dent(self):
         """
