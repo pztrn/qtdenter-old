@@ -6,6 +6,13 @@ from PyQt4.QtGui import QDialog, QPushButton
 from ui import NewPost
 
 class New_Post(QDialog):
+    """
+    New post dialog.
+    
+    Options:
+    @messageLenght - maximum lenght of message
+    @parameters - dict with parameters (type, reply_to_id)
+    """
     def __init__(self, messageLength, parameters, callback, parent = None):
         QDialog.__init__(self, parent)
         self.ui = NewPost.Ui_Dialog()
@@ -38,6 +45,9 @@ class New_Post(QDialog):
             self.ui.postButton.clicked.connect(self.postData)
 
     def countCharacters(self):
+        """
+        Count characters user entered.
+        """
         self.textLenght = len(self.ui.postData.toPlainText())
         self.enteredSymbols = self.messageLength - self.textLenght
         if not self.messageLength == 0:
@@ -51,6 +61,9 @@ class New_Post(QDialog):
             self.ui.symbolCount.setText("<div style='font-weight:bold;'>No characters limit</div>")
 
     def postData(self):
+        """
+        Post public message
+        """
         if self._messageIsTooLong == 1:
             QMessageBox.critical(self, self.tr("New post - Message is too long"), self.tr("Message you entered is too long. Maximum message length is {0} symbols, you entered {1} symbols.").format(str(self.messageLength), str(self.textLenght)))
         else:
@@ -62,9 +75,13 @@ class New_Post(QDialog):
             else:
                 self.callback("post_data", str(QString.toUtf8(self.ui.postData.toPlainText())))
                 
-            self.close()
+            
+        self.close()
                 
     def post_direct_message(self):
+        """
+        Post direct message
+        """
         message = str(QString.toUtf8(self.ui.postData.toPlainText()))
         data = {}
         data["nickname"] = message.split(" ")[0][2:]

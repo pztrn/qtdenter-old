@@ -7,6 +7,18 @@ from ui import Context_Window as cg
 from lib import list_item, list_handler, new_post
 
 class Context(QDialog):
+    """
+    Context dialog. Responsoble for viewing full thread.
+    
+    There are a "bug" here - I have to duplicate some functions from main
+    module due to architecture fail. I will fix that, soon.
+    
+    Parameters:
+    @auth - connector instance for communication with statusnet installation
+    @conversation_id - conversation id. Nuff said.
+    @settings - QTDenter settings
+    @version - QTDenter version
+    """
     def __init__(self, auth, conversation_id, settings, version, parent = None):
         QDialog.__init__(self, parent)
         self.ui = cg.Ui_Dialog()
@@ -31,12 +43,18 @@ class Context(QDialog):
         self.list_handler.add_data("conversation", conversation)
         
     def callback(self, list_type, data):
+        """
+        List callback
+        """
         if list_type == "end":
             pass
         else:
             self.add_dent(data)
         
     def add_dent(self, data):
+        """
+        Add dent to list widget
+        """
         item_data = self.list_item.process_item(data)
 
         item = item_data[0]
@@ -65,6 +83,9 @@ class Context(QDialog):
         self.ui.context.setItemWidget(item, 1, post_widget)
 
     def like_dent(self):
+        """
+        Like dent
+        """
         try:
             item = self.ui.context.currentItem()
             dent_id = self.ui.context.currentItem().text(2).split(":")[0]
@@ -85,6 +106,9 @@ class Context(QDialog):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def redent_dent(self):
+        """
+        Redent dent
+        """
         try:
             dent_id = self.ui.context.currentItem().text(2).split(":")[0]
             self.auth.redent_dent(dent_id, self.VERSION)
@@ -92,6 +116,9 @@ class Context(QDialog):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def delete_dent(self):
+        """
+        Delete dent
+        """
         try:
             dent_id = self.ui.context.currentItem().text(2).split(":")[0]
             data = self.auth.delete_dent(dent_id)
@@ -102,6 +129,9 @@ class Context(QDialog):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
             
     def reply_to_dent(self):
+        """
+        Reply to dent
+        """
         try:
             dent_id = self.ui.context.currentItem().text(2).split(":")[0]
             to_username = self.ui.context.currentItem().text(2).split(":")[1]
@@ -117,6 +147,9 @@ class Context(QDialog):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
 
     def go_to_dent(self):
+        """
+        Open dent URL
+        """
         try:
             item = self.ui.context.currentItem()
             dent_id = self.ui.context.currentItem().text(2).split(":")[0]
@@ -129,16 +162,18 @@ class Context(QDialog):
             QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
-            
-    def post_status(self, data):
-        data = self.auth.post_dent(data, self.VERSION)
-        self.list_handler.add_data("home", [data])
         
     def send_reply(self, data):
+        """
+        Send reply
+        """
         data = self.auth.send_reply(data, self.VERSION)
         self.list_handler.add_data("home", [data])
             
     def new_post_callback(self, type, data):
+        """
+        Callback for new post dialog.
+        """
         if type == "send_reply":
             self.send_reply(data)
             

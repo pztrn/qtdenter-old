@@ -4,9 +4,18 @@ import os, dbus, subprocess
 from lib import common
 
 class Now_Playing():
+    """
+    Let's spam all over !listening! :)
+    
+    This class parsing current track metadata from specified player. After that it
+    sending to main thread, where spam_music() replacing pseudowords with medatada
+    and creates new post dialog.
+    
+    Parameters:
+    @player - current player
+    @player_string - player string
+    """
     def __init__(self, player, player_string):
-        print "'Now Playing' initialization ok"
-        
         # Defining known player list
         
         players = ["MPD", "Clementine"]        
@@ -16,13 +25,22 @@ class Now_Playing():
         # for filling a combobox in settings
         common.set_global_parameter("players", players)
         
+        print "'Now Playing' initialization ok"
+        
     def get_music_info(self, player):
+        """
+        Primary function. Here is deciding what player to use, depending on
+        "player" parameter.
+        """
         if player == "MPD":
             return self.get_mpd_song()
         elif player == "Clementine":
             return self.get_clementine_song()
     
     def get_clementine_song(self):
+        """
+        Getting data from clementine
+        """
         track_data = {}
         try:
             session_bus = dbus.SessionBus()
@@ -42,6 +60,9 @@ class Now_Playing():
             
 
     def get_mpd_song(self):
+        """
+        Getting data from mpd
+        """
         track_data = {}
         try:
             command = """mpc --format "[[%artist%<><>%title%<><>%album%]]""".split(" ")

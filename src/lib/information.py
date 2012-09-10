@@ -6,6 +6,15 @@ from PyQt4.QtGui import QDialog
 from ui import Stat
 
 class Information_Dialog(QDialog):
+    """
+    Information dialog. Shows server information, like statusnet version and
+    dent lenght limit.
+    
+    Parameters:
+    @server_data - statusnet config
+    @server_version - statusnet version
+    @version - QTDenter version
+    """
     def __init__(self, server_data, server_version, version, parent = None):
         QDialog.__init__(self, parent)
         self.ui = Stat.Ui_Dialog()

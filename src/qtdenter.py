@@ -64,8 +64,10 @@ class Denter_Form(QMainWindow):
 
         self.appVersion = "0.1-dev"
         
+        # Setting QTDenter path
         common.set_qtdenter_path()
-
+        
+        # Some variables
         self._hidden = 0
         self.inserted_timeline_dents_ids = []
         self.inserted_mentions_dents_ids = []
@@ -73,15 +75,20 @@ class Denter_Form(QMainWindow):
         self._new_mentions = 0
         self._changed_credentials = False
         
+        # Set QTextCodec explicitly. Some disadvantages for rarely used
+        # languages, but no problems for others.
         QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
         
         # Tray icon
+        self.icon = {}
         if not os.path.exists(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"):
-            self.icon = QIcon("/usr/share/pixmaps/qtdenter.png")
+            self.icon["qicon"] = QIcon("/usr/share/pixmaps/qtdenter.png")
+            self.icon["path"] = "/usr/share/pixmaps/qtdenter.png"
         else:
-            self.icon = QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
+            self.icon["qicon"] = QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
+            self.icon["path"] = common.QTDENTER_PATH + "/ui/imgs/trayicon.png"
             
-        self.trayIcon = QSystemTrayIcon(self.icon, self)
+        self.trayIcon = QSystemTrayIcon(self.icon["qicon"], self)
         self.trayIcon.setVisible(True)
         self.connect(self.trayIcon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.check_for_visibility)
         
@@ -94,6 +101,7 @@ class Denter_Form(QMainWindow):
         menu.addAction("Exit", self.close_from_tray)
         self.trayIcon.setContextMenu(menu)
 
+        # Reading settings and fill settings dict
         self.settings = {}
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter")):
             os.mkdir(os.path.expanduser("~/.config/qtdenter"))
@@ -141,42 +149,53 @@ class Denter_Form(QMainWindow):
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
             database.createDB()
 
+        # Connecting menu actions
         self.ui.action_Options.triggered.connect(self.show_options_dialog)
         self.ui.action_Exit.triggered.connect(self.close_from_menu)
         self.ui.action_About_Denter.triggered.connect(self.show_about)
         self.ui.actionStatistics.triggered.connect(self.show_information)
         self.ui.actionSpam_Music_data.triggered.connect(self.spam_music)
+        self.ui.action_Update_all.triggered.connect(self.update_timelines)
 
+        # Connecting some signals
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("HideForm()"), self.check_for_visibility)
         self.connect(self, SIGNAL("ShowOptions()"), self.show_options_dialog)
         self.connect(self, SIGNAL("Close()"), self.close_from_tray)
 
+        # New post toolbar icon
         newPostIcon = iconFromTheme("add")
         newPost = QAction(newPostIcon, "New post", self)
         newPost.setShortcut("Ctrl+N")
         newPost.triggered.connect(self.post_status_dialog)
         
+        # New direct message toolbar icon
         new_direct_message_icon = iconFromTheme("no-new-messages")
         new_direct_message = QAction(new_direct_message_icon, "New direct message", self)
         new_direct_message.setShortcut("Ctrl+N")
         new_direct_message.triggered.connect(self.post_direct_message_dialog)
 
+        # Timelines reload toolbar icon
         reloadTimelinesIcon = iconFromTheme("reload")
         reloadTimelines = QAction(reloadTimelinesIcon, "Reload all timelines", self)
         reloadTimelines.setShortcut("Ctrl+R")
         reloadTimelines.triggered.connect(self.update_timelines)
 
+        # Options toolbar icon
         optionsIcon = iconFromTheme("document-properties")
         options = QAction(optionsIcon, "Options", self)
         options.setShortcut("Ctrl+P")
         options.triggered.connect(self.show_options_dialog)
 
+        # Spacer widget, making last updated time label in toolbar to align
+        # strictly right
         spacerWidget = QWidget()
         spacerWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
+        # Last updated label
         self.time_updated_action = QLabel()
 
+        # Adding everything to toolbar
         self.ui.toolBar.addAction(newPost)
         self.ui.toolBar.addAction(new_direct_message)
         self.ui.toolBar.addSeparator()
@@ -186,10 +205,13 @@ class Denter_Form(QMainWindow):
         self.ui.toolBar.addWidget(spacerWidget)
         self.ui.toolBar.addWidget(self.time_updated_action)
         
+        # Set item delegation for list
         self.ui.timeline_list.setItemDelegate(list_item.item())
 
+        # Defining list_handler instance
         self.list_handler = list_handler.List_Handler(callback=self.lists_callback)
-            
+        
+        # Set some options to timeline list
         self.ui.timeline_list.setSortingEnabled(True)
         self.ui.timeline_list.sortByColumn(2, Qt.DescendingOrder)
         for column in range(2, 5):
@@ -198,6 +220,7 @@ class Denter_Form(QMainWindow):
         self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
         self.ui.timeline_list.connect(self.ui.timeline_list, SIGNAL("itemEntered(QTreeWidgetItem, int)"), self.set_current_item)
         
+        # Set some options to mentions list
         self.ui.mentions_list.setSortingEnabled(True)
         self.ui.mentions_list.sortByColumn(2, Qt.DescendingOrder)
         for column in range(2, 5):
@@ -205,6 +228,15 @@ class Denter_Form(QMainWindow):
         self.ui.mentions_list.setColumnWidth(0, 65)
         self.ui.mentions_list.itemActivated.connect(self.reply_to_dent)
         
+        # Set some options to direct messages list
+        self.ui.dm_list.setSortingEnabled(True)
+        self.ui.dm_list.sortByColumn(2, Qt.DescendingOrder)
+        for column in range(2, 5):
+            self.ui.dm_list.setColumnHidden(column, True)
+        self.ui.dm_list.setColumnWidth(0, 65)
+        self.ui.dm_list.itemActivated.connect(self.reply_to_dent)
+        
+        # Defining list_item instance, that generates items for lists
         self.list_item = list_item.list_item()
         
         # Init notifications
@@ -215,6 +247,7 @@ class Denter_Form(QMainWindow):
             print "Failed to init pynotify"
             
         self.show()
+        
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
@@ -227,8 +260,12 @@ class Denter_Form(QMainWindow):
                 # Getting last dent ID from server
                 temp = self.auth.get_home_timeline(opts)
                 # Calculation count of dents we will download on startup
-                print "C"
                 count = temp[0]["id"] - int(self.settings["last_dent_id"])
+                
+                if count == 0:
+                    count = 20
+                else:
+                    pass
             
                 opts = {"count"     : str(count),
                         "name"      : self.settings["user"]
@@ -257,14 +294,23 @@ class Denter_Form(QMainWindow):
             self.settings["messageLength"] = "140"
         
     def init_connector(self):
+        """
+        Initialize connection instance
+        """
         self.auth = connector.Requester(self.settings["user"], self.settings["password"], self.settings["server"] + "/api/", self.settings["useSecureConnection"], self.connect_callback)
     
     def connect_callback(self, data):
+        """
+        Callback for connection instance
+        """
         if data == "bad_credentials":
             QMessageBox.critical(self, "QTDenter - Bad credentials", "Username and password you entered\nis incorrect.")
             self.show_options_dialog()
         
     def start_timer(self, interval):
+        """
+        Timer starting/redefining
+        """
         try:
             timer_interval = int(interval) * 1000 * 60
             self.update_timer = QTimer()
@@ -275,8 +321,10 @@ class Denter_Form(QMainWindow):
             print "Failed to launch timer!"
             
     def update_timelines(self):
+        """
+        Update timelines
+        """
         opts = {"count"     : None,
-                "from_id"   : None,
                 "name"      : self.settings["user"]
                 }
         home_timeline = self.auth.get_home_timeline(opts)
@@ -287,6 +335,10 @@ class Denter_Form(QMainWindow):
         self.list_handler.add_data("direct_messages", mentions)
             
     def lists_callback(self, list_type, data):
+        """
+        Lists callback. Depending on "list_type" parameter, sending "data"
+        to specified function, responsible for own list.
+        """
         if list_type == "home":
             self.add_to_timeline_iterator(data)
         elif list_type == "home_avatar":
@@ -301,7 +353,7 @@ class Denter_Form(QMainWindow):
             
             # Notifications
             if self._new_direct_messages > 0:
-                notify = pynotify.Notification("QTDenter", "{0} new dents arrived.".format(self._new_direct_messages), self.icon)
+                notify = pynotify.Notification("QTDenter", "{0} new dents arrived.".format(self._new_direct_messages), self.icon["path"])
                 notify.set_urgency(pynotify.URGENCY_NORMAL)
                 notify.set_timeout(10000)
                 notify.add_action("clicked","Show QTDenter", self.show_window, None)
@@ -310,6 +362,9 @@ class Denter_Form(QMainWindow):
             
             
     def add_to_timeline_iterator(self, data):
+        """
+        This function called multiple times, until "data" flows in.
+        """
         if data["id"] not in self.inserted_timeline_dents_ids:
             self.inserted_timeline_dents_ids.append(data["id"])
             self.add_dent_to_widget("timeline", data)
@@ -318,6 +373,9 @@ class Denter_Form(QMainWindow):
             pass
 
     def add_to_mentions_iterator(self, data):
+        """
+        This function called multiple times, until "data" flows in.
+        """
         if data["id"] not in self.inserted_mentions_dents_ids:
             self.inserted_mentions_dents_ids.append(data["id"])
             self.add_dent_to_widget("mentions", data)
@@ -326,6 +384,9 @@ class Denter_Form(QMainWindow):
             pass
             
     def add_to_dm_iterator(self, data):
+        """
+        This function called multiple times, until "data" flows in.
+        """
         if data["id"] not in self.inserted_mentions_dents_ids:
             self.inserted_mentions_dents_ids.append(data["id"])
             self.add_dent_to_widget("direct_messages", data)
@@ -334,12 +395,16 @@ class Denter_Form(QMainWindow):
             pass
 
     def add_dent_to_widget(self, list_type, data):
+        """
+        Add dents to widget. Widget specified in "list_type" option
+        """
         item_data = self.list_item.process_item(data)
         
         item = item_data[0]
         avatar_widget = item_data[1]
         post_widget = item_data[2]
-        
+
+        # Searching and connecting buttons
         destroy_button = avatar_widget.findChild(QPushButton, "destroy_button_" + str(data["id"]))
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
@@ -352,11 +417,14 @@ class Denter_Form(QMainWindow):
         if data["in_reply_to_screen_name"]:
             context_button.clicked.connect(self.show_context)
         
+        # If current dent is not self-posted - hide "Delete" button.
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
         else:
             redent_button.hide()
         
+        # Defaulting to timelines list. If list_type is not "home":
+        # sets approriate widget.
         list_widget = self.ui.timeline_list
         if list_type == "mentions":
             list_widget = self.ui.mentions_list
@@ -368,9 +436,16 @@ class Denter_Form(QMainWindow):
         list_widget.setItemWidget(item, 1, post_widget)
         
     def update_timeline_avatar(self, name):
+        """
+        Updating avatars if no avatars present. Temporary, this function prints only
+        avatar holder screen name, in future it will update avatars in lists.
+        """
         print name
         
     def like_dent(self):
+        """
+        Like dent button callback
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
@@ -378,6 +453,8 @@ class Denter_Form(QMainWindow):
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
         
+        # Search for item that contain pressed "Like" button, get dent id,
+        # and send a request to connector for dent like.
         try:
             item = list_widget.currentItem()
             dent_id = list_widget.currentItem().text(2).split(":")[0]
@@ -398,13 +475,18 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def redent_dent(self):
+        """
+        Redent dent button callback
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
             list_widget = self.ui.mentions_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
-
+        
+        # Search for item that contain pressed "Redent" button, get dent id,
+        # and send a request to connector for dent redenting.
         try:
             dent_id = list_widget.currentItem().text(2).split(":")[0]
             self.auth.redent_dent(dent_id, VERSION)
@@ -412,11 +494,16 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def delete_dent(self):
+        """
+        Delete dent button callback
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
 
+        # Search for item that contain pressed "Delete" button, get dent id,
+        # and send a request to connector for dent deletion.
         try:
             dent_id = list_widget.currentItem().text(2).split(":")[0]
             data = self.auth.delete_dent(dent_id)
@@ -427,10 +514,16 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
 
     def post_status(self, data):
+        """
+        Post status requester
+        """
         data = self.auth.post_dent(data, VERSION)
         self.list_handler.add_data("home", [data])
         
     def send_reply(self, data):
+        """
+        Send reply callback
+        """
         data = self.auth.send_reply(data, VERSION)
         self.list_handler.add_data("home", [data])
         
@@ -438,13 +531,18 @@ class Denter_Form(QMainWindow):
         self.auth.send_direct_message(data, VERSION)
         
     def reply_to_dent(self):
+        """
+        Reply to dent (item double-click) callback
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
             list_widget = self.ui.mentions_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
-            
+
+        # Search for item that contain pressed "Reply" button, get dent id,
+        # and show post dent dialog.            
         try:
             dent_id = list_widget.currentItem().text(2).split(":")[0]
             to_username = list_widget.currentItem().text(2).split(":")[1]
@@ -460,6 +558,9 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def post_status_dialog(self):
+        """
+        Post new dent dialog
+        """
         params = {
                     "type": "new_dent"
                 }
@@ -467,12 +568,18 @@ class Denter_Form(QMainWindow):
         newpostD.exec_()
         
     def post_direct_message_dialog(self):
+        """
+        Send direct message dialog
+        """
         params = {}
         params["type"] = "direct"
         newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
         newpostD.exec_()
         
     def new_post_callback(self, type, data):
+        """
+        Callback for new post dialog
+        """
         if type == "post_data":
             self.post_status(data)
         elif type == "send_reply":
@@ -481,6 +588,9 @@ class Denter_Form(QMainWindow):
             self.send_direct_message(data)
         
     def go_to_dent(self):
+        """
+        Callback for ID button
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
@@ -501,6 +611,9 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
             
     def show_context(self):
+        """
+        Callback for "Context" button
+        """
         if self.ui.tabWidget.currentIndex() == 0:
             list_widget = self.ui.timeline_list
         elif self.ui.tabWidget.currentIndex() == 1:
@@ -516,25 +629,38 @@ class Denter_Form(QMainWindow):
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def spam_music(self):
+        """
+        Music spam :) Get current track info, forming dict with data and
+        send it to new post dialog.
+        """
         music_data = self.np.get_music_info(self.settings["player"])
-        spam_string = self.qsettings.value("player_string").toString()
-        spam_string = spam_string.replace("$artist", music_data["artist"])
-        spam_string = spam_string.replace("$album", music_data["album"])
-        spam_string = spam_string.replace("$trackname", music_data["trackname"])
-        spam_string = spam_string.replace("$player", str(self.settings["player"]).lower())
-        spam_string = spam_string.replace("\"", "")
-        params = {
-                    "text": spam_string,
-                    "direct": False,
-                    "type": "insert"
-                }
-        newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
-        newpostD.exec_()
+        if music_data["condition"] == "FAIL":
+            spam_string = "Failed to get music data!"
+        else:
+            spam_string = self.qsettings.value("player_string").toString()
+            spam_string = spam_string.replace("$artist", music_data["artist"])
+            spam_string = spam_string.replace("$album", music_data["album"])
+            spam_string = spam_string.replace("$trackname", music_data["trackname"])
+            spam_string = spam_string.replace("$player", str(self.settings["player"]).lower())
+            spam_string = spam_string.replace("\"", "")
+            params = {
+                        "text": spam_string,
+                        "direct": False,
+                        "type": "insert"
+                    }
+            newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
+            newpostD.exec_()
     
     def set_current_item(self, item, column):
+        """
+        Currently does nothing
+        """
         print item, column
 
     def check_for_visibility(self):
+        """
+        Checking for window visibility.
+        """
         if self._hidden == 0:
             self.hide()
             self._hidden = 1
@@ -543,14 +669,24 @@ class Denter_Form(QMainWindow):
             self._hidden = 0
             
     def show_window(self):
+        """
+        Show window on notification click
+        """
         self.show()
         self._hidden = 0
 
     def show_options_dialog(self):
+        """
+        Show options dialog
+        """
         settingsD = options_dialog.Options_Dialog(self.settings, self.change_settings)
         settingsD.exec_()
 
     def change_settings(self, data):
+        """
+        Callback for options dialog for settings change, timer restart
+        and redefining connector instance.
+        """
         if self.settings["user"] != data[0] or self.settings["server"] != data[2]:
             QMessageBox.information(self, "Username or Serve change", "In order to continue ALL cache data and currently\nshowed dents will be cleared.")
             self._changed_credentials = True
@@ -576,12 +712,18 @@ class Denter_Form(QMainWindow):
             self._changed_credentials = False
         
     def show_about(self):
+        """
+        Show about dialog
+        """
         aboutW = QDialog()
         aboutW.ui = About.Ui_Dialog()
         aboutW.ui.setupUi(aboutW)
         aboutW.exec_()
 
     def show_information(self):
+        """
+        Show server information
+        """
         data = self.auth.get_server_config("config")
         server_version = self.auth.get_server_config("version")
         infoD = information.Information_Dialog(data, server_version, VERSION)
@@ -594,6 +736,9 @@ class Denter_Form(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
+        """
+        CloseEvent override, for settings saving
+        """
         box = QMessageBox()
         box.setWindowTitle("QTDenter - Exiting")
         box.setText("Are you sure you want to exit?")

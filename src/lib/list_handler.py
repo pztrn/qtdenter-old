@@ -5,12 +5,26 @@ from PyQt4.QtCore import QThread, QString
 from PyQt4.QtGui import QTreeWidgetItem, QLabel
 
 class List_Handler(QThread):
+    """
+    This is a "data parser" thread - all retrieved data goes here, parsed,
+    reparsed, refining, and sending back to main thread with callback help.
+    Callback will decide what to do, depending on list_type.
+    
+    Parameters:
+    @callback - callback for sending parsed data to main thread
+    """
     def __init__(self, callback, parent = None):
         QThread.__init__(self, parent)
         
         self.callback = callback
         
     def add_data(self, list_type, data):
+        """
+        Data parser. Opts:
+        
+        @list_type - list type (timeline, mentions, direct)
+        @data - retrieved data
+        """
         for item in data:
             item_data = {}
             item_data["avatar"] = item["user"]["profile_image_url"]
@@ -35,6 +49,9 @@ class List_Handler(QThread):
         self.callback("end", "")
         
     def download_avatar(self, avatar, name):
+        """
+        Avatar downloader
+        """
         extension = avatar.split(".")[-1:][0]
         avatar_path = os.path.expanduser("~/.local/share/qtdenter/avatars/") + "%s.%s" % (name, extension)
         if not os.path.exists(avatar_path):

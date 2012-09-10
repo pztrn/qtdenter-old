@@ -5,6 +5,10 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 class list_item:
+    """
+    List Item class. Forming QTreeWidgetItem items, some QWidgets and sending
+    it back to main thread.
+    """
     def __init__(self):
         pass
         
@@ -154,9 +158,10 @@ class item(QStyledItemDelegate):
         QTreeWidgetItem.__init__(self, parent)
      
     def __lt__(self, otherItem):
+        """
+        Human sorting
+        """
         column = self.treeWidget().sortColumn()
-        
-        print otherItem
      
         return self.text(column) < otherItem.text(column)
             

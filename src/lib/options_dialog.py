@@ -7,6 +7,13 @@ from ui import Settings
 from lib import common
 
 class Options_Dialog(QDialog):
+    """
+    Options dialog class. Nuff said.
+    
+    Parameters:
+    @settings - QTDenter settings
+    @callback - callback for settings transmission to main thread
+    """
     def __init__(self, settings, callback, parent = None):
         QDialog.__init__(self, parent)
         self.ui = Settings.Ui_Dialog()
@@ -57,12 +64,19 @@ class Options_Dialog(QDialog):
             pass
             
     def changing_rld_state(self):
+        """
+        Changing state of dents_quantity widget depending on
+        remember_last_dent_id checkbox.
+        """
         if self.ui.remember_last_dentid.checkState() == 2:
             self.ui.dents_quantity.setEnabled(False)
         else:
             self.ui.dents_quantity.setEnabled(True)       
 
     def transmitSettings(self):
+        """
+        Transmitting new settings to main thread.
+        """
         settingslist = []
         settingslist.append(str(self.ui.accountName.text()))
         settingslist.append(str(self.ui.password.text()))
