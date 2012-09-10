@@ -19,7 +19,7 @@ class Now_Playing():
         self.settings = settings
 
         # Defining known player list
-        players = ["MPD", "Clementine"]
+        players = ["MPD", "Clementine", "Exaile"]
         needs_settings = ["MPD"]
         players.sort()
         
@@ -39,6 +39,8 @@ class Now_Playing():
             return self.get_mpd_song()
         elif player == "Clementine":
             return self.get_clementine_song()
+        elif player == "Exaile":
+            return self.get_exaile_song()
     
     def get_clementine_song(self):
         """
@@ -107,3 +109,21 @@ class Now_Playing():
             track_data["condition"] = "FAIL"
             return track_data
  
+    def get_exaile_song(self):
+        """
+        Getting data from exaile
+        """
+        track_data = {}
+        
+        session_bus = dbus.SessionBus()
+        player = session_bus.get_object("org.exaile.Exaile","/org/exaile/Exaile")
+        iface = dbus.Interface(player, "org.exaile.Exaile")
+        
+        if iface.IsPlaying:
+            # Making dict with track data
+            track_data["condition"] = "OK"
+            track_data["artist"] = iface.GetTrackAttr("artist")
+            track_data["trackname"] = iface.GetTrackAttr("title")
+            track_data["album"] = iface.GetTrackAttr("album")
+            return track_data
+
