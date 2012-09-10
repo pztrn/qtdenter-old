@@ -92,7 +92,7 @@ class Now_Playing():
             
             data = get_info()
             while True:
-                if "Title" not in data:
+                if "Id" not in data:
                     data = get_info()
                 else:
                     break
@@ -101,7 +101,6 @@ class Now_Playing():
         
             # Making dict with track data
             track_data["condition"] = "OK"
-            print data
             for item in data:
                 index = data.index(item)
                 if "Artist" in item:
