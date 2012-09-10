@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import os
-from PyQt4.QtCore import QString, Qt
+from PyQt4.QtCore import QString, Qt, QSignalMapper
 from PyQt4.QtGui import QDialog, QPushButton, QMessageBox
 from ui import Context_Window as cg
 from lib import list_item, list_handler, new_post
@@ -17,7 +17,7 @@ class Context(QDialog):
     @auth - connector instance for communication with statusnet installation
     @conversation_id - conversation id. Nuff said.
     @settings - QTDenter settings
-    @version - QTDenter version
+    @self.version - QTDenter self.version
     """
     def __init__(self, auth, conversation_id, settings, version, parent = None):
         QDialog.__init__(self, parent)
@@ -26,7 +26,19 @@ class Context(QDialog):
         
         self.settings = settings
         self.auth = auth
-        self.VERSION = version
+        self.version = version
+        
+        # Initialize signal mappers for buttons and lists for buttons pointers
+        self.context_buttons_mapper = QSignalMapper(self)
+        self.context_buttons_list = []
+        self.destroy_buttons_mapper = QSignalMapper(self)
+        self.destroy_buttons_list = []
+        self.redent_buttons_mapper = QSignalMapper(self)
+        self.redent_buttons_list = []
+        self.like_buttons_mapper = QSignalMapper(self)
+        self.like_buttons_list = []
+        self.dentid_buttons_mapper = QSignalMapper(self)
+        self.dentid_buttons_list = []
         
         self.ui.context.setSortingEnabled(True)
         self.ui.context.sortByColumn(2, Qt.DescendingOrder)
@@ -41,6 +53,34 @@ class Context(QDialog):
         
         self.list_item = list_item.list_item()
         self.list_handler.add_data("conversation", conversation)
+        self.connect_buttons()
+        
+    def connect_buttons(self):
+        print "Connecting buttons"
+        for item in self.context_buttons_list:
+            self.context_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.context_buttons_mapper.map)
+            
+        for item in self.destroy_buttons_list:
+            self.destroy_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.destroy_buttons_mapper.map)
+            
+        for item in self.redent_buttons_list:
+            self.redent_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.redent_buttons_mapper.map)
+            
+        for item in self.like_buttons_list:
+            self.like_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.like_buttons_mapper.map)
+            
+        for item in self.dentid_buttons_list:
+            self.dentid_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.dentid_buttons_mapper.map)
+            
+        self.destroy_buttons_mapper.mapped.connect(self.delete_dent)
+        self.redent_buttons_mapper.mapped.connect(self.redent_dent)
+        self.like_buttons_mapper.mapped.connect(self.like_dent)
+        self.dentid_buttons_mapper.mapped.connect(self.go_to_dent)
         
     def callback(self, list_type, data):
         """
@@ -65,66 +105,101 @@ class Context(QDialog):
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
-        destroy_button.clicked.connect(self.delete_dent)
-        dentid_button.clicked.connect(self.go_to_dent)
-        redent_button.clicked.connect(self.redent_dent)
-        like_button.clicked.connect(self.like_dent)
-        if data["in_reply_to_screen_name"]:
-            context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
-            context_button.hide()
         
+        # Adding buttons pointers to list for later mapping
+        self.destroy_buttons_list.append([destroy_button, data["id"]])
+        self.dentid_buttons_list.append([dentid_button, data["id"]])
+        self.redent_buttons_list.append([redent_button, data["id"]])
+        self.like_buttons_list.append([like_button, data["id"]])
+        
+        # If current dent is not self-posted - hide "Delete" button.
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
         else:
             redent_button.hide()
         
+        if data["retweeted"]:
+            redent_button.hide()
+        elif data["nickname"] != self.settings["user"] and data["retweeted"]:
+            redent_button.show()
+        
         self.ui.context.addTopLevelItem(item)
         self.ui.context.setItemWidget(item, 0, avatar_widget)
         self.ui.context.setItemWidget(item, 1, post_widget)
 
-    def like_dent(self):
+    def like_dent(self, dent_id):
         """
-        Like dent
+        Like dent button callback
         """
+        # Search for item that contain pressed "Like" button, get dent id,
+        # and send a request to connector for dent like.
         try:
-            item = self.ui.context.currentItem()
-            dent_id = self.ui.context.currentItem().text(2).split(":")[0]
-            if self.ui.context.currentItem().text(3) == "not":
-                data = self.auth.favoritize_dent(dent_id, self.VERSION)
-                if data != "FAIL":
-                    btn = self.ui.context.findChild(QPushButton, "like_button_" + dent_id)
-                    self.ui.context.currentItem().setText(3, "favorited")
-                    btn.setText("X")
-            else:
-                data = self.auth.defavoritize_dent(dent_id, self.VERSION)
-                if data != "FAIL":
-                    btn = self.ui.context.findChild(QPushButton, "like_button_" + dent_id)
-                    btn.findChild(QPushButton, "X")
-                    self.ui.context.currentItem().setText(3, "not")
-                    btn.setText(u"\u2665")
+            root = self.ui.context.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    btn = self.ui.context.findChild(QPushButton, "like_button_" + str(dent_id))
+                    btn.setText("...")
+                    if item.text(3) == "not":
+                        data = self.auth.favoritize_dent(dent_id, self.version)
+                        if data["favorited"]:
+                            item.setText(3, "favorited")
+                            btn.setText("X")
+                        else:
+                            btn.setText(u"\u2665")
+                        break
+                    else:
+                        data = self.auth.defavoritize_dent(dent_id, self.version)
+                        if not data["favorited"]:
+                            item.setText(3, "not")
+                            btn.setText(u"\u2665")
+                        else:
+                            btn.setText("X")
+                        break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
-    def redent_dent(self):
+    def redent_dent(self, dent_id):
         """
-        Redent dent
+        Redent dent button callback
         """
+        # Search for item that contain pressed "Redent" button, get dent id,
+        # and send a request to connector for dent redenting.
         try:
-            dent_id = self.ui.context.currentItem().text(2).split(":")[0]
-            self.auth.redent_dent(dent_id, self.VERSION)
+            root = self.ui.context.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    print "FOUND!"
+                    data = self.auth.redent_dent(dent_id, self.version)
+                    if data != "FAIL":
+                        btn = self.ui.context.findChild(QPushButton, "redent_button_" + str(dent_id))
+                        btn.hide()
+                        
+                    break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
-    def delete_dent(self):
+    def delete_dent(self, dent_id):
         """
-        Delete dent
+        Delete dent button callback
         """
+        # Search for item that contain pressed "Delete" button, get dent id,
+        # and send a request to connector for dent deletion.
         try:
-            dent_id = self.ui.context.currentItem().text(2).split(":")[0]
-            data = self.auth.delete_dent(dent_id)
-            if data == "OK":
-                index = self.ui.context.indexOfTopLevelItem(self.ui.context.currentItem())
-                self.ui.context.takeTopLevelItem(index)
+            root = self.ui.context.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    data = self.auth.delete_dent(dent_id)
+                    print data
+                    if data == "OK":
+                        index = self.ui.context.indexOfTopLevelItem(item)
+                        self.ui.context.takeTopLevelItem(index)
+                    break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
             
@@ -146,20 +221,23 @@ class Context(QDialog):
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
 
-    def go_to_dent(self):
+    def go_to_dent(self, dent_id):
         """
-        Open dent URL
+        Callback for ID button
         """
         try:
-            item = self.ui.context.currentItem()
-            dent_id = self.ui.context.currentItem().text(2).split(":")[0]
-            server_address = self.settings["server"]
-            if self.settings["useSecureConnection"] == 1:
-                server_address = "https://" + server_address
-            else:
-                server_address = "http://" + server_address
+            root = self.ui.context.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    server_address = self.settings["server"]
+                    if self.settings["useSecureConnection"] == 1:
+                        server_address = "https://" + server_address
+                    else:
+                        server_address = "http://" + server_address
         
-            QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
+                    QDesktopServices.openUrl(QUrl(server_address + "/notice/" + str(dent_id)))
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
@@ -167,7 +245,7 @@ class Context(QDialog):
         """
         Send reply
         """
-        data = self.auth.send_reply(data, self.VERSION)
+        data = self.auth.send_reply(data, self.version)
         self.list_handler.add_data("home", [data])
             
     def new_post_callback(self, type, data):

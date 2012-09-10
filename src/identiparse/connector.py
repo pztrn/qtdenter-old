@@ -84,14 +84,14 @@ class Requester():
         request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
         print "FAVORITIZE REQUEST FORMED"
         
-        try:
-            result = urllib2.urlopen(request, "")
-            result = result.read()
+        #try:
+        result = urllib2.urlopen(request, "")
+        result = result.read()
         
-            print "FAVORITIZED"
-            return json.loads(result)
-        except:
-            self.callback("bad_credentials")
+        print "FAVORITIZED"
+        return json.loads(result)
+        #except:
+        #    self.callback("bad_credentials")
             
     def post_dent(self, text, version):
         """
@@ -167,7 +167,7 @@ class Requester():
         
             return json.loads(result)
         except:
-            self.callback("bad_credentials")
+            return "FAIL"
         
     def send_direct_message(self, data, version):
         """

@@ -41,6 +41,9 @@ class List_Handler(QThread):
             item_data["in_reply_to_screen_name"] = item["in_reply_to_screen_name"]
             item_data["conversation_id"] = item["statusnet_conversation_id"]
             
+            item_data["retweeted"] = False
+            if "retweeted_status" in item:
+                item_data["retweeted"] = True
             
             self.download_avatar(item["user"]["profile_image_url"], item["user"]["screen_name"])
             

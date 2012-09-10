@@ -79,6 +79,18 @@ class Denter_Form(QMainWindow):
         # languages, but no problems for others.
         QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
         
+        # Initialize signal mappers for buttons and lists for buttons pointers
+        self.context_buttons_mapper = QSignalMapper(self)
+        self.context_buttons_list = []
+        self.destroy_buttons_mapper = QSignalMapper(self)
+        self.destroy_buttons_list = []
+        self.redent_buttons_mapper = QSignalMapper(self)
+        self.redent_buttons_list = []
+        self.like_buttons_mapper = QSignalMapper(self)
+        self.like_buttons_list = []
+        self.dentid_buttons_mapper = QSignalMapper(self)
+        self.dentid_buttons_list = []
+        
         # Tray icon
         self.icon = {}
         if not os.path.exists(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"):
@@ -277,6 +289,8 @@ class Denter_Form(QMainWindow):
             self.list_handler.add_data("mentions", mentions)
             mentions = self.auth.get_direct_messages(opts)
             self.list_handler.add_data("direct_messages", mentions)
+            # Connect buttons
+            self.connect_buttons()
         except:
             print "No auth data specified"
             
@@ -333,6 +347,37 @@ class Denter_Form(QMainWindow):
         self.list_handler.add_data("mentions", mentions)
         mentions = self.auth.get_direct_messages(opts)
         self.list_handler.add_data("direct_messages", mentions)
+        
+        # Connect buttons
+        self.connect_buttons()
+        
+    def connect_buttons(self):
+        print "Connecting buttons"
+        for item in self.context_buttons_list:
+            self.context_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.context_buttons_mapper.map)
+            
+        for item in self.destroy_buttons_list:
+            self.destroy_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.destroy_buttons_mapper.map)
+            
+        for item in self.redent_buttons_list:
+            self.redent_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.redent_buttons_mapper.map)
+            
+        for item in self.like_buttons_list:
+            self.like_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.like_buttons_mapper.map)
+            
+        for item in self.dentid_buttons_list:
+            self.dentid_buttons_mapper.setMapping(item[0], item[1])
+            item[0].clicked.connect(self.dentid_buttons_mapper.map)
+            
+        self.context_buttons_mapper.mapped.connect(self.show_context)
+        self.destroy_buttons_mapper.mapped.connect(self.delete_dent)
+        self.redent_buttons_mapper.mapped.connect(self.redent_dent)
+        self.like_buttons_mapper.mapped.connect(self.like_dent)
+        self.dentid_buttons_mapper.mapped.connect(self.go_to_dent)
             
     def lists_callback(self, list_type, data):
         """
@@ -404,24 +449,32 @@ class Denter_Form(QMainWindow):
         avatar_widget = item_data[1]
         post_widget = item_data[2]
 
-        # Searching and connecting buttons
+        # Searching buttons
         destroy_button = avatar_widget.findChild(QPushButton, "destroy_button_" + str(data["id"]))
         dentid_button = post_widget.findChild(QPushButton, "dentid_button_" + str(data["id"]))
         redent_button = post_widget.findChild(QPushButton, "redent_button_" + str(data["id"]))
         like_button = post_widget.findChild(QPushButton, "like_button_" + str(data["id"]))
         context_button = post_widget.findChild(QPushButton, "context_button_" + str(data["conversation_id"]))
-        destroy_button.clicked.connect(self.delete_dent)
-        dentid_button.clicked.connect(self.go_to_dent)
-        redent_button.clicked.connect(self.redent_dent)
-        like_button.clicked.connect(self.like_dent)
+        
+        # Adding buttons pointers to list for later mapping
+        self.destroy_buttons_list.append([destroy_button, data["id"]])
+        self.dentid_buttons_list.append([dentid_button, data["id"]])
+        self.redent_buttons_list.append([redent_button, data["id"]])
+        self.like_buttons_list.append([like_button, data["id"]])
         if data["in_reply_to_screen_name"]:
-            context_button.clicked.connect(self.show_context)
+            self.context_buttons_list.append([context_button, data["conversation_id"]])
+            context_button.show()
         
         # If current dent is not self-posted - hide "Delete" button.
         if not data["nickname"] == self.settings["user"]:
             destroy_button.hide()
         else:
             redent_button.hide()
+        
+        if data["retweeted"]:
+            redent_button.hide()
+        elif data["nickname"] != self.settings["user"] and data["retweeted"]:
+            redent_button.show()
         
         # Defaulting to timelines list. If list_type is not "home":
         # sets approriate widget.
@@ -442,7 +495,7 @@ class Denter_Form(QMainWindow):
         """
         print name
         
-    def like_dent(self):
+    def like_dent(self, dent_id):
         """
         Like dent button callback
         """
@@ -456,25 +509,33 @@ class Denter_Form(QMainWindow):
         # Search for item that contain pressed "Like" button, get dent id,
         # and send a request to connector for dent like.
         try:
-            item = list_widget.currentItem()
-            dent_id = list_widget.currentItem().text(2).split(":")[0]
-            if list_widget.currentItem().text(3) == "not":
-                data = self.auth.favoritize_dent(dent_id, VERSION)
-                if data != "FAIL":
-                    btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
-                    list_widget.currentItem().setText(3, "favorited")
-                    btn.setText("X")
-            else:
-                data = self.auth.defavoritize_dent(dent_id, VERSION)
-                if data != "FAIL":
-                    btn = list_widget.findChild(QPushButton, "like_button_" + dent_id)
-                    btn.findChild(QPushButton, "X")
-                    list_widget.currentItem().setText(3, "not")
-                    btn.setText(u"\u2665")
+            root = list_widget.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    btn = list_widget.findChild(QPushButton, "like_button_" + str(dent_id))
+                    btn.setText("...")
+                    if item.text(3) == "not":
+                        data = self.auth.favoritize_dent(dent_id, VERSION)
+                        if data["favorited"]:
+                            item.setText(3, "favorited")
+                            btn.setText("X")
+                        else:
+                            btn.setText(u"\u2665")
+                        break
+                    else:
+                        data = self.auth.defavoritize_dent(dent_id, VERSION)
+                        if not data["favorited"]:
+                            item.setText(3, "not")
+                            btn.setText(u"\u2665")
+                        else:
+                            btn.setText("X")
+                        break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
-    def redent_dent(self):
+    def redent_dent(self, dent_id):
         """
         Redent dent button callback
         """
@@ -488,12 +549,22 @@ class Denter_Form(QMainWindow):
         # Search for item that contain pressed "Redent" button, get dent id,
         # and send a request to connector for dent redenting.
         try:
-            dent_id = list_widget.currentItem().text(2).split(":")[0]
-            self.auth.redent_dent(dent_id, VERSION)
+            root = list_widget.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    print "FOUND!"
+                    data = self.auth.redent_dent(dent_id, VERSION)
+                    if data != "FAIL":
+                        btn = list_widget.findChild(QPushButton, "redent_button_" + str(dent_id))
+                        btn.hide()
+                        
+                    break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
-    def delete_dent(self):
+    def delete_dent(self, dent_id):
         """
         Delete dent button callback
         """
@@ -505,11 +576,17 @@ class Denter_Form(QMainWindow):
         # Search for item that contain pressed "Delete" button, get dent id,
         # and send a request to connector for dent deletion.
         try:
-            dent_id = list_widget.currentItem().text(2).split(":")[0]
-            data = self.auth.delete_dent(dent_id)
-            if data == "OK":
-                index = list_widget.indexOfTopLevelItem(list_widget.currentItem())
-                list_widget.takeTopLevelItem(index)
+            root = list_widget.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    data = self.auth.delete_dent(dent_id)
+                    print data
+                    if data == "OK":
+                        index = list_widget.indexOfTopLevelItem(item)
+                        list_widget.takeTopLevelItem(index)
+                    break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
 
@@ -587,7 +664,7 @@ class Denter_Form(QMainWindow):
         elif type == "send_direct_message":
             self.send_direct_message(data)
         
-    def go_to_dent(self):
+    def go_to_dent(self, dent_id):
         """
         Callback for ID button
         """
@@ -597,20 +674,24 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.mentions_list
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
-        try:
-            item = list_widget.currentItem()
-            dent_id = list_widget.currentItem().text(2).split(":")[0]
-            server_address = self.settings["server"]
-            if self.settings["useSecureConnection"] == 1:
-                server_address = "https://" + server_address
-            else:
-                server_address = "http://" + server_address
         
-            QDesktopServices.openUrl(QUrl(server_address + "/notice/" + dent_id))
+        try:
+            root = list_widget.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                if item.text(2).split(":")[0] == str(dent_id):
+                    server_address = self.settings["server"]
+                    if self.settings["useSecureConnection"] == 1:
+                        server_address = "https://" + server_address
+                    else:
+                        server_address = "http://" + server_address
+        
+                    QDesktopServices.openUrl(QUrl(server_address + "/notice/" + str(dent_id)))
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
             
-    def show_context(self):
+    def show_context(self, conversation_id):
         """
         Callback for "Context" button
         """
@@ -621,12 +702,11 @@ class Denter_Form(QMainWindow):
         elif self.ui.tabWidget.currentIndex() == 2:
             list_widget = self.ui.dm_list
             
-        try:
-            conversation_id = list_widget.currentItem().text(2).split(":")[2]
-            contextD = context.Context(self.auth, conversation_id, self.settings, VERSION)
-            contextD.exec_()
-        except:
-            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
+        #try:
+        contextD = context.Context(self.auth, conversation_id, self.settings, VERSION)
+        contextD.exec_()
+        #except:
+        #    QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def spam_music(self):
         """

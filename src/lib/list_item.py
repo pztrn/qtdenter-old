@@ -21,6 +21,7 @@ class list_item:
             context_button.setText("Context")
             context_button.setObjectName("context_button_" + str(data["conversation_id"]))
             context_button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+            context_button.hide()
 
         else:
             nickname = data["nickname"]
