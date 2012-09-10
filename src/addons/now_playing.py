@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-import os, dbus, subprocess
+import os, dbus, subprocess, socket
 from lib import common
 
 class Now_Playing():
@@ -15,15 +15,21 @@ class Now_Playing():
     @player - current player
     @player_string - player string
     """
-    def __init__(self, player, player_string):
+    def __init__(self, settings):
+        self.settings = settings
+
         # Defining known player list
-        
-        players = ["MPD", "Clementine"]        
+        players = ["MPD", "Clementine"]
+        needs_settings = ["MPD"]
         players.sort()
+        
+        if self.settings["player"] == "MPD":
+            import mpd
         
         # Set global variable (accessible thru 'common' module)
         # for filling a combobox in settings
         common.set_global_parameter("players", players)
+        common.set_global_parameter("players_needs_settings", needs_settings)
         
         print "'Now Playing' initialization ok"
         
@@ -62,20 +68,43 @@ class Now_Playing():
     def get_mpd_song(self):
         """
         Getting data from mpd
-        """
+        """            
         track_data = {}
         try:
-            command = """mpc --format "[[%artist%<><>%title%<><>%album%]]""".split(" ")
-            p = subprocess.Popen(command, stdout=subprocess.PIPE)
-            data = p.communicate()[0].split("\n")[0]
-        
-            data = data.split("<><>")
+            print "Getting music info from MPD, running on '{0}:{1}'...".format(self.settings["mpd_host"], self.settings["mpd_port"])
+            #command = """mpc --format "[[%artist%<><>%title%<><>%album%]]""".split(" ")
+            #p = subprocess.Popen(command, stdout=subprocess.PIPE)
+            #data = p.communicate()[0].split("\n")[0]
+            
+            def get_info():
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((str(self.settings["mpd_host"]), int(self.settings["mpd_port"])))
+                s.send("currentsong\n")
+            
+                data = s.recv(1000)
+                s.send("close\n")
+                s.close()
+                return data
+            
+            data = get_info()
+            while True:
+                if "Title" not in data:
+                    data = get_info()
+                else:
+                    break
+            
+            data = data.split("\n")
         
             # Making dict with track data
             track_data["condition"] = "OK"
-            track_data["artist"] = data[0]
-            track_data["trackname"] = data[1]
-            track_data["album"] = data[2]
+            for item in data:
+                index = data.index(item)
+                if "Artist" in item:
+                    track_data["artist"] = data[index][8:]
+                elif "Title" in item:
+                    track_data["trackname"] = data[index][7:]
+                elif "Album" in item:
+                    track_data["album"] = data[index][7:]
             return track_data
         except:
             track_data["condition"] = "FAIL"

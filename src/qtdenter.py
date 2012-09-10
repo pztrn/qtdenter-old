@@ -142,9 +142,13 @@ class Denter_Form(QMainWindow):
         try:
             self.settings["player"] = self.qsettings.value("player").toString()
             self.settings["player_string"] = self.qsettings.value("player_string").toString()
+            self.settings["mpd_port"] = self.qsettings.value("mpd_port").toString()
+            self.settings["mpd_host"] = self.qsettings.value("mpd_host").toString()
         except:
             self.settings["player"] = None
             self.settings["player_string"] = "!listening to: $artist - $track #$player"
+            self.settings["mpd_port"] = "6600"
+            self.settings["mpd_host"] = "localhost"
 
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
             database.createDB()
@@ -287,7 +291,7 @@ class Denter_Form(QMainWindow):
         self.start_timer(self.settings["updateInterval"])
         
         # Init "Now Playing"
-        self.np = now_playing.Now_Playing(self.settings["player"], self.settings["player_string"])
+        self.np = now_playing.Now_Playing(self.settings)
         
         # Get max characters count from server
         try:
@@ -717,8 +721,10 @@ class Denter_Form(QMainWindow):
         send it to new post dialog.
         """
         music_data = self.np.get_music_info(self.settings["player"])
-        if music_data["condition"] == "FAIL":
-            spam_string = "Failed to get music data!"
+        if music_data == "failed-connect":
+            QMessageBox.critical(self, "QTDenter - FAIL!", "Failed to connect to server!")
+        elif music_data == "failed-getsong" or music_data["condition"] == "FAIL":
+            QMessageBox.critical(self, "QTDenter - FAIL!", "Failed to get track data!")
         else:
             spam_string = self.qsettings.value("player_string").toString()
             spam_string = spam_string.replace("$artist", music_data["artist"])
@@ -786,6 +792,8 @@ class Denter_Form(QMainWindow):
         self.settings["fetch_on_startup"] = data[7]
         self.settings["player"] = data[8]
         self.settings["player_string"] = data[9]
+        self.settings["mpd_host"] = data[10]
+        self.settings["mpd_port"] = data[11]
         self.init_connector()
         self.start_timer(self.settings["updateInterval"])
         
@@ -840,6 +848,8 @@ class Denter_Form(QMainWindow):
             self.qsettings.setValue("fetch_on_startup", self.settings["fetch_on_startup"])
             self.qsettings.setValue("player", self.settings["player"])
             self.qsettings.setValue("player_string", self.settings["player_string"])
+            self.qsettings.setValue("mpd_host", self.settings["mpd_host"])
+            self.qsettings.setValue("mpd_port", self.settings["mpd_port"])
             self.qsettings.setValue("state", self.saveState())
             self.qsettings.setValue("geometry", self.saveGeometry())
             if self.settings["remember_last_dent_id"] == "1":

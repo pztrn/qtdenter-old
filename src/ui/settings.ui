@@ -10,8 +10,14 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>559</height>
+    <height>581</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>405</width>
+    <height>581</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>QTDenter Settings</string>
@@ -40,7 +46,11 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLineEdit" name="accountName"/>
+          <widget class="QLineEdit" name="accountName">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
@@ -50,7 +60,11 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="serverName"/>
+          <widget class="QLineEdit" name="serverName">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_3">
@@ -61,6 +75,9 @@
          </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="password">
+           <property name="text">
+            <string notr="true"/>
+           </property>
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
            </property>
@@ -163,7 +180,7 @@
             <x>0</x>
             <y>0</y>
             <width>363</width>
-            <height>322</height>
+            <height>344</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
@@ -277,6 +294,9 @@ p, li { white-space: pre-wrap; }
            <property name="frame">
             <bool>true</bool>
            </property>
+           <property name="specialValueText">
+            <string/>
+           </property>
            <property name="accelerated">
             <bool>false</bool>
            </property>
@@ -325,6 +345,9 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
+           </property>
+           <property name="text">
+            <string notr="true"/>
            </property>
            <property name="maxLength">
             <number>100</number>
@@ -392,6 +415,12 @@ p, li { white-space: pre-wrap; }
                  <height>100</height>
                 </size>
                </property>
+               <property name="documentTitle">
+                <string notr="true"/>
+               </property>
+               <property name="plainText">
+                <string notr="true"/>
+               </property>
               </widget>
              </item>
              <item row="2" column="1">
@@ -405,6 +434,101 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QScrollArea" name="additional_settings_wrap">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_2">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>341</width>
+                <height>150</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Additional Settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <layout class="QFormLayout" name="formLayout_4">
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetDefaultConstraint</enum>
+                 </property>
+                 <property name="fieldGrowthPolicy">
+                  <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                 </property>
+                 <property name="rowWrapPolicy">
+                  <enum>QFormLayout::DontWrapRows</enum>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="mpdhost_text">
+                   <property name="text">
+                    <string>MPD Host:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="mpdhost">
+                   <property name="text">
+                    <string notr="true">localhost</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="mpdport_text">
+                   <property name="text">
+                    <string>MPD Port:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="mpdport">
+                   <property name="text">
+                    <string notr="true">6600</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>500</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -440,6 +564,9 @@ p, li { white-space: pre-wrap; }
       <widget class="QPushButton" name="okButton">
        <property name="text">
         <string>Save and close</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

@@ -45,7 +45,7 @@ class Options_Dialog(QDialog):
             self.ui.dents_quantity.setEnabled(True)
             
         self.ui.dents_quantity.setText(self.settings["fetch_on_startup"])
-
+        
         self.ui.okButton.clicked.connect(self.transmitSettings)
         self.ui.cancelButton.clicked.connect(self.close)
         
@@ -59,9 +59,27 @@ class Options_Dialog(QDialog):
             index = common.GLOBAL_PARMS["players"].index(self.settings["player"])
             self.ui.players_list.setCurrentIndex(index)
             self.ui.player_string.appendPlainText(self.settings["player_string"])
+            self.players_needs_settings = common.GLOBAL_PARMS["players_needs_settings"]
+            
+            if self.settings["player"] != "MPD":
+                self.ui.additional_settings_wrap.hide()
+            try:
+                self.ui.mpdhost.setText(self.settings["mpd_host"])
+                self.ui.mpdport.setText(self.settings["mpd_port"])
+            except:
+                pass
+                
         except:
             # No config values, passing
             pass
+            
+        self.ui.players_list.currentIndexChanged.connect(self.player_changed)
+        
+    def player_changed(self):
+        if self.ui.players_list.currentText() not in self.players_needs_settings:
+            self.ui.additional_settings_wrap.hide()
+        else:
+            self.ui.additional_settings_wrap.show()
             
     def changing_rld_state(self):
         """
@@ -97,6 +115,8 @@ class Options_Dialog(QDialog):
         settingslist.append(str(self.ui.dents_quantity.text()))
         settingslist.append(str(self.ui.players_list.currentText()))
         settingslist.append(str(self.ui.player_string.toPlainText()))
+        settingslist.append(str(self.ui.mpdhost.text()))
+        settingslist.append(str(self.ui.mpdport.text()))
 
         self.callback(settingslist)
         self.close()
