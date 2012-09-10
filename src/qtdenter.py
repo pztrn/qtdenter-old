@@ -79,18 +79,6 @@ class Denter_Form(QMainWindow):
         # languages, but no problems for others.
         QTextCodec.setCodecForCStrings(QTextCodec.codecForName("UTF-8"))
         
-        # Initialize signal mappers for buttons and lists for buttons pointers
-        self.context_buttons_mapper = QSignalMapper(self)
-        self.context_buttons_list = []
-        self.destroy_buttons_mapper = QSignalMapper(self)
-        self.destroy_buttons_list = []
-        self.redent_buttons_mapper = QSignalMapper(self)
-        self.redent_buttons_list = []
-        self.like_buttons_mapper = QSignalMapper(self)
-        self.like_buttons_list = []
-        self.dentid_buttons_mapper = QSignalMapper(self)
-        self.dentid_buttons_list = []
-        
         # Tray icon
         self.icon = {}
         if not os.path.exists(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"):
@@ -263,6 +251,7 @@ class Denter_Form(QMainWindow):
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
+            self.initialize_button_mappers()
         
             opts = {"count"     : str(self.settings["fetch_on_startup"]),
                     "name"      : self.settings["user"]
@@ -338,6 +327,7 @@ class Denter_Form(QMainWindow):
         """
         Update timelines
         """
+        self.initialize_button_mappers()
         opts = {"count"     : None,
                 "name"      : self.settings["user"]
                 }
@@ -350,6 +340,19 @@ class Denter_Form(QMainWindow):
         
         # Connect buttons
         self.connect_buttons()
+        
+    def initialize_button_mappers(self):
+        # Initialize signal mappers for buttons and lists for buttons pointers
+        self.context_buttons_mapper = QSignalMapper(self)
+        self.context_buttons_list = []
+        self.destroy_buttons_mapper = QSignalMapper(self)
+        self.destroy_buttons_list = []
+        self.redent_buttons_mapper = QSignalMapper(self)
+        self.redent_buttons_list = []
+        self.like_buttons_mapper = QSignalMapper(self)
+        self.like_buttons_list = []
+        self.dentid_buttons_mapper = QSignalMapper(self)
+        self.dentid_buttons_list = []
         
     def connect_buttons(self):
         print "Connecting buttons"
