@@ -23,9 +23,6 @@ class Now_Playing():
         needs_settings = ["MPD"]
         players.sort()
         
-        if self.settings["player"] == "MPD":
-            import mpd
-        
         # Set global variable (accessible thru 'common' module)
         # for filling a combobox in settings
         common.set_global_parameter("players", players)
