@@ -176,7 +176,7 @@ class Denter_Form(QMainWindow):
         # New direct message toolbar icon
         new_direct_message_icon = iconFromTheme("no-new-messages")
         new_direct_message = QAction(new_direct_message_icon, "New direct message", self)
-        new_direct_message.setShortcut("Ctrl+N")
+        new_direct_message.setShortcut("Ctrl+D")
         new_direct_message.triggered.connect(self.post_direct_message_dialog)
 
         # Timelines reload toolbar icon
@@ -209,8 +209,6 @@ class Denter_Form(QMainWindow):
         self.ui.toolBar.addWidget(spacerWidget)
         self.ui.toolBar.addWidget(self.time_updated_action)
         
-        # Set item delegation for list
-        self.ui.timeline_list.setItemDelegate(list_item.item())
 
         # Defining list_handler instance
         self.list_handler = list_handler.List_Handler(callback=self.lists_callback)
@@ -255,6 +253,10 @@ class Denter_Form(QMainWindow):
         # Initialize auther and get timelines for first time
         try:
             self.init_connector()
+        except:
+            print "No auth data specified"
+        
+        try:
             self.initialize_button_mappers()
         
             opts = {"count"     : str(self.settings["fetch_on_startup"]),
@@ -266,7 +268,7 @@ class Denter_Form(QMainWindow):
                 temp = self.auth.get_home_timeline(opts)
                 # Calculation count of dents we will download on startup
                 count = temp[0]["id"] - int(self.settings["last_dent_id"])
-                
+                    
                 if count == 0:
                     count = 20
                 else:
@@ -275,17 +277,29 @@ class Denter_Form(QMainWindow):
                 opts = {"count"     : str(count),
                         "name"      : self.settings["user"]
                         }
-
+        except:
+            print "Can't specify options!"
+        
+        try:
             home_timeline = self.auth.get_home_timeline(opts)
             self.list_handler.add_data("home", home_timeline)
+        except:
+            print "Can't get home timeline. WTF?"
+        
+        try:
             mentions = self.auth.get_mentions(opts)
             self.list_handler.add_data("mentions", mentions)
             mentions = self.auth.get_direct_messages(opts)
             self.list_handler.add_data("direct_messages", mentions)
+        except:
+            print "Can't get mentions. WTF?"
+            
+        try:
             # Connect buttons
             self.connect_buttons()
         except:
-            print "No auth data specified"
+            print "Failed to connect buttons!"
+        
             
         # Init timer
         self.start_timer(self.settings["updateInterval"])
