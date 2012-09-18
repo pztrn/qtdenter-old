@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-import os, urllib2
+import os, urllib2, shutil
 from PyQt4.QtCore import QThread, QString
 from PyQt4.QtGui import QTreeWidgetItem, QLabel
 
@@ -57,8 +57,10 @@ class List_Handler(QThread):
         """
         extension = avatar.split(".")[-1:][0]
         avatar_path = os.path.expanduser("~/.local/share/qtdenter/avatars/") + "%s.%s" % (name, extension)
+        temp_avatar_path = os.path.expanduser("~/.local/share/qtdenter/avatars/temp/") + "%s.%s" % (name, extension)
         if not os.path.exists(avatar_path):
             if "secure.gravatar.com" in avatar:
+                # Sometimes it gaining an application stuck.
                 pass
             else:
                 request = urllib2.urlopen(avatar)
@@ -69,4 +71,19 @@ class List_Handler(QThread):
         
                 self.callback("home_avatar", name)
         else:
-            pass
+            if "secure.gravatar.com" in avatar:
+                # Sometimes it gaining an application stuck.
+                pass
+            else:
+                request = urllib2.urlopen(avatar)
+                data = request.read()
+                f = open(temp_avatar_path, "w")
+                f.write(data)
+                f.close()
+                
+                old_avatar_stat = os.stat(avatar_path)
+                new_avatar_stat = os.stat(temp_avatar_path)
+                if old_avatar_stat.st_size != new_avatar_stat.st_size:
+                    print "Avatar differs, replacing"
+                    shutil.move(temp_avatar_path, avatar_path)
+                    self.callback("home_avatar", name)

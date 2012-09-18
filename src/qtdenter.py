@@ -106,8 +106,8 @@ class Denter_Form(QMainWindow):
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter")):
             os.mkdir(os.path.expanduser("~/.config/qtdenter"))
             os.system("touch ~/.config/qtdenter/qsettings.conf")
-        if not os.path.exists(os.path.expanduser("~/.local/share/qtdenter/avatars")):
-            os.makedirs(os.path.expanduser("~/.local/share/qtdenter/avatars"))
+        if not os.path.exists(os.path.expanduser("~/.local/share/qtdenter/avatars/temp")):
+            os.makedirs(os.path.expanduser("~/.local/share/qtdenter/avatars/temp"))
 
         if not os.path.exists(cachepath):
             os.mkdir(cachepath)
@@ -291,6 +291,12 @@ class Denter_Form(QMainWindow):
             self.list_handler.add_data("mentions", mentions)
             mentions = self.auth.get_direct_messages(opts)
             self.list_handler.add_data("direct_messages", mentions)
+            if self.settings["remember_last_dent_id"] == "1":
+                root = self.ui.timeline_list.invisibleRootItem()
+                last_item = root.child(0)
+                dent_id = last_item.text(2).split(":")[0]
+                self.qsettings.setValue("last_dent_id", dent_id)
+            self.qsettings.sync()
         except:
             print "Can't get mentions. WTF?"
             
@@ -355,6 +361,12 @@ class Denter_Form(QMainWindow):
         self.list_handler.add_data("mentions", mentions)
         mentions = self.auth.get_direct_messages(opts)
         self.list_handler.add_data("direct_messages", mentions)
+        if self.settings["remember_last_dent_id"] == "1":
+            root = self.ui.timeline_list.invisibleRootItem()
+            last_item = root.child(0)
+            dent_id = last_item.text(2).split(":")[0]
+            self.qsettings.setValue("last_dent_id", dent_id)
+        self.qsettings.sync()
         
         # Connect buttons
         self.connect_buttons()

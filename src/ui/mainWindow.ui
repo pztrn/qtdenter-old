@@ -361,7 +361,9 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionStatistics"/>
+    <addaction name="actionAbout_me"/>
     <addaction name="separator"/>
+    <addaction name="actionQTDenter_Documentation"/>
     <addaction name="action_About_Denter"/>
    </widget>
    <widget class="QMenu" name="menuAddons">
@@ -412,12 +414,22 @@
   </action>
   <action name="actionStatistics">
    <property name="text">
-    <string>Information...</string>
+    <string>&amp;Server Information...</string>
    </property>
   </action>
   <action name="actionSpam_Music_data">
    <property name="text">
     <string>Spam &amp;Music data</string>
+   </property>
+  </action>
+  <action name="actionAbout_me">
+   <property name="text">
+    <string>About &amp;me...</string>
+   </property>
+  </action>
+  <action name="actionQTDenter_Documentation">
+   <property name="text">
+    <string>QTDenter &amp;Documentation</string>
    </property>
   </action>
  </widget>
