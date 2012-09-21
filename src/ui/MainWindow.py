@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sun Sep  9 14:20:23 2012
+# Created: Fri Sep 21 16:54:07 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -136,12 +136,22 @@ class Ui_MainWindow(object):
         self.actionStatistics.setObjectName(_fromUtf8("actionStatistics"))
         self.actionSpam_Music_data = QtGui.QAction(MainWindow)
         self.actionSpam_Music_data.setObjectName(_fromUtf8("actionSpam_Music_data"))
+        self.actionAbout_me = QtGui.QAction(MainWindow)
+        self.actionAbout_me.setObjectName(_fromUtf8("actionAbout_me"))
+        self.actionQTDenter_Documentation = QtGui.QAction(MainWindow)
+        self.actionQTDenter_Documentation.setObjectName(_fromUtf8("actionQTDenter_Documentation"))
+        self.action_Mark_all_unread = QtGui.QAction(MainWindow)
+        self.action_Mark_all_unread.setObjectName(_fromUtf8("action_Mark_all_unread"))
         self.menu_File.addAction(self.action_Options)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Exit)
         self.menu_Timelines.addAction(self.action_Update_all)
+        self.menu_Timelines.addSeparator()
+        self.menu_Timelines.addAction(self.action_Mark_all_unread)
         self.menu_Help.addAction(self.actionStatistics)
+        self.menu_Help.addAction(self.actionAbout_me)
         self.menu_Help.addSeparator()
+        self.menu_Help.addAction(self.actionQTDenter_Documentation)
         self.menu_Help.addAction(self.action_About_Denter)
         self.menuAddons.addAction(self.actionSpam_Music_data)
         self.menubar.addAction(self.menu_File.menuAction())
@@ -185,6 +195,9 @@ class Ui_MainWindow(object):
         self.action_Exit.setText(QtGui.QApplication.translate("MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Update_all.setText(QtGui.QApplication.translate("MainWindow", "&Update all", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About_Denter.setText(QtGui.QApplication.translate("MainWindow", "&About QTDenter...", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionStatistics.setText(QtGui.QApplication.translate("MainWindow", "Information...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStatistics.setText(QtGui.QApplication.translate("MainWindow", "&Server Information...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSpam_Music_data.setText(QtGui.QApplication.translate("MainWindow", "Spam &Music data", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAbout_me.setText(QtGui.QApplication.translate("MainWindow", "About &me...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionQTDenter_Documentation.setText(QtGui.QApplication.translate("MainWindow", "QTDenter &Documentation", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Mark_all_unread.setText(QtGui.QApplication.translate("MainWindow", "&Mark all unread dents as read", None, QtGui.QApplication.UnicodeUTF8))
 

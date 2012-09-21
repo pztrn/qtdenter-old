@@ -355,6 +355,8 @@
      <string>&amp;Timelines</string>
     </property>
     <addaction name="action_Update_all"/>
+    <addaction name="separator"/>
+    <addaction name="action_Mark_all_unread"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -430,6 +432,11 @@
   <action name="actionQTDenter_Documentation">
    <property name="text">
     <string>QTDenter &amp;Documentation</string>
+   </property>
+  </action>
+  <action name="action_Mark_all_unread">
+   <property name="text">
+    <string>&amp;Mark all unread dents as read</string>
    </property>
   </action>
  </widget>

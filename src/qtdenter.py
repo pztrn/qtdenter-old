@@ -160,6 +160,7 @@ class Denter_Form(QMainWindow):
         self.ui.actionStatistics.triggered.connect(self.show_information)
         self.ui.actionSpam_Music_data.triggered.connect(self.spam_music)
         self.ui.action_Update_all.triggered.connect(self.update_timelines)
+        self.ui.action_Mark_all_unread.triggered.connect(self.mark_all_as_read)
 
         # Connecting some signals
         self.connect(self, SIGNAL("ShowForm()"), self.check_for_visibility)
@@ -184,6 +185,12 @@ class Denter_Form(QMainWindow):
         reloadTimelines = QAction(reloadTimelinesIcon, "Reload all timelines", self)
         reloadTimelines.setShortcut("Ctrl+R")
         reloadTimelines.triggered.connect(self.update_timelines)
+        
+        # Mark all read icon
+        mark_all_read_icon = iconFromTheme("dialog-ok")
+        mark_all_read = QAction(mark_all_read_icon, "Mark all unread dents as read", self)
+        mark_all_read.setShortcut("Ctrl+X")
+        mark_all_read.triggered.connect(self.mark_all_as_read)
 
         # Options toolbar icon
         optionsIcon = iconFromTheme("document-properties")
@@ -204,6 +211,7 @@ class Denter_Form(QMainWindow):
         self.ui.toolBar.addAction(new_direct_message)
         self.ui.toolBar.addSeparator()
         self.ui.toolBar.addAction(reloadTimelines)
+        self.ui.toolBar.addAction(mark_all_read)
         self.ui.toolBar.addSeparator()
         self.ui.toolBar.addAction(options)
         self.ui.toolBar.addWidget(spacerWidget)
@@ -220,7 +228,7 @@ class Denter_Form(QMainWindow):
             self.ui.timeline_list.setColumnHidden(column, True)
         self.ui.timeline_list.setColumnWidth(0, 65)
         self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
-        self.ui.timeline_list.connect(self.ui.timeline_list, SIGNAL("itemEntered(QTreeWidgetItem, int)"), self.set_current_item)
+        self.ui.timeline_list.itemSelectionChanged.connect(self.change_item_read_state)
         
         # Set some options to mentions list
         self.ui.mentions_list.setSortingEnabled(True)
@@ -476,7 +484,7 @@ class Denter_Form(QMainWindow):
         """
         Add dents to widget. Widget specified in "list_type" option
         """
-        item_data = self.list_item.process_item(data)
+        item_data = self.list_item.process_item(data, self.settings["last_dent_id"])
         
         item = item_data[0]
         avatar_widget = item_data[1]
@@ -516,6 +524,11 @@ class Denter_Form(QMainWindow):
             list_widget = self.ui.mentions_list
         if list_type == "direct_messages":
             list_widget = self.ui.dm_list
+            
+        read_state = item.text(2).split(":")[3]
+        if read_state == "not":
+            item.setBackground(0, QColor(200, 255, 200, 255))
+            item.setBackground(1, QColor(200, 255, 200, 255))
         
         list_widget.addTopLevelItem(item)
         list_widget.setItemWidget(item, 0, avatar_widget)
@@ -742,6 +755,61 @@ class Denter_Form(QMainWindow):
         #except:
         #    QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
+    def change_item_read_state(self):
+        """
+        Change item state from 'not_read' to 'read'
+        """
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
+            
+        item = list_widget.currentItem()
+        
+        print item.text(2)
+            
+        read_state = item.text(2).split(":")[3]
+        if read_state == "not":
+            item_text_joined = QString()
+            item.setBackground(0, QColor(200, 255, 200, 0))
+            item.setBackground(1, QColor(200, 255, 200, 0))
+            
+            item_text = item.text(2).split(":")
+            item_text[3] = "read"
+            item_text_joined = item_text.join(":")
+            item.setText(2, item_text_joined)
+            
+    def mark_all_as_read(self):
+        """
+        Mark all unread dents as read
+        """
+        if self.ui.tabWidget.currentIndex() == 0:
+            list_widget = self.ui.timeline_list
+        elif self.ui.tabWidget.currentIndex() == 1:
+            list_widget = self.ui.mentions_list
+        elif self.ui.tabWidget.currentIndex() == 2:
+            list_widget = self.ui.dm_list
+        
+        root = list_widget.invisibleRootItem()
+        count = root.childCount()
+        for index in range(count):
+            item = root.child(index)
+            try:
+                read_state = item.text(2).split(":")[3]
+                if read_state == "not":
+                    item_text_joined = QString()
+                    item.setBackground(0, QColor(200, 255, 200, 0))
+                    item.setBackground(1, QColor(200, 255, 200, 0))
+            
+                    item_text = item.text(2).split(":")
+                    item_text[3] = "read"
+                    item_text_joined = item_text.join(":")
+                    item.setText(2, item_text_joined)
+            except:
+                print "Failed to change state of item id", item.text(2).split(":")[0]
+
     def spam_music(self):
         """
         Music spam :) Get current track info, forming dict with data and

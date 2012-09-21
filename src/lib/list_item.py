@@ -8,11 +8,21 @@ class list_item:
     """
     List Item class. Forming QTreeWidgetItem items, some QWidgets and sending
     it back to main thread.
+    
+    Item Structure:
+    
+    ===========================================================================================
+    | Avatar       | Nickname (with arror and  | Buttons: redent, | Dent ID,  | Favoritized
+    | (QLabel)     | nickname a person to whom | context,         | nickname, | state, redent
+    | (optionally  | replying), dent text.     | source.          | conv id,  | state
+    |              |                           |                  | read state| (hidden)
+    | dent destroy |                           |                  | (hidden)  | 
+    | btn)         |                           |                  |           |
     """
     def __init__(self):
         pass
         
-    def process_item(self, data):
+    def process_item(self, data, last_dent_id):
         if data["in_reply_to_screen_name"]:
             nickname = data["nickname"] + " " + u"\u2794" + " " + data["in_reply_to_screen_name"]
 
@@ -25,6 +35,10 @@ class list_item:
 
         else:
             nickname = data["nickname"]
+            
+        read_state = "not"
+        if int(data["id"]) < int(last_dent_id) or int(data["id"]) == int(last_dent_id):
+            read_state = "read"
             
         post_data_info = QLabel()
         
@@ -136,7 +150,7 @@ class list_item:
         
         item = QTreeWidgetItem()
         
-        item.setText(2, str(data["id"]) + ":" + data["nickname"] + ":" + str(data["conversation_id"]))
+        item.setText(2, str(data["id"]) + ":" + data["nickname"] + ":" + str(data["conversation_id"]) + ":" + read_state)
         if data["in_favorites"]:
             item.setText(3, "favorited")
         else:

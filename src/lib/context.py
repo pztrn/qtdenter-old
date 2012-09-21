@@ -95,7 +95,7 @@ class Context(QDialog):
         """
         Add dent to list widget
         """
-        item_data = self.list_item.process_item(data)
+        item_data = self.list_item.process_item(data, self.settings["last_dent_id"])
 
         item = item_data[0]
         avatar_widget = item_data[1]
