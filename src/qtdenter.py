@@ -785,30 +785,26 @@ class Denter_Form(QMainWindow):
         """
         Mark all unread dents as read
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-        
-        root = list_widget.invisibleRootItem()
-        count = root.childCount()
-        for index in range(count):
-            item = root.child(index)
-            try:
-                read_state = item.text(2).split(":")[3]
-                if read_state == "not":
-                    item_text_joined = QString()
-                    item.setBackground(0, QColor(200, 255, 200, 0))
-                    item.setBackground(1, QColor(200, 255, 200, 0))
+        lists = [self.ui.timeline_list, self.ui.mentions_list, self.ui.dm_list]
+
+        for list_widget in lists:
+            root = list_widget.invisibleRootItem()
+            count = root.childCount()
+            for index in range(count):
+                item = root.child(index)
+                try:
+                    read_state = item.text(2).split(":")[3]
+                    if read_state == "not":
+                        item_text_joined = QString()
+                        item.setBackground(0, QColor(200, 255, 200, 0))
+                        item.setBackground(1, QColor(200, 255, 200, 0))
             
-                    item_text = item.text(2).split(":")
-                    item_text[3] = "read"
-                    item_text_joined = item_text.join(":")
-                    item.setText(2, item_text_joined)
-            except:
-                print "Failed to change state of item id", item.text(2).split(":")[0]
+                        item_text = item.text(2).split(":")
+                        item_text[3] = "read"
+                        item_text_joined = item_text.join(":")
+                        item.setText(2, item_text_joined)
+                except:
+                    print "Failed to change state of item id", item.text(2).split(":")[0]
 
     def spam_music(self):
         """
