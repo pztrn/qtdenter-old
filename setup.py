@@ -11,7 +11,12 @@ setup(name='qtdenter',
     author='Stanislav N. aka pztrn',
     author_email='pztrn@pztrn.ru',
     url='http://github.com/pztrn/qtdenter',
-    packages=['qtdenter', 'qtdenter.ui', 'qtdenter.lib', 'qtdenter.identiparse', 'qtdenter.ui.imgs', 'qtdenter.addons'],
+    packages=['qtdenter', 'qtdenter.ui', 'qtdenter.lib', 'qtdenter.identiparse', 'qtdenter.addons', 'qtdenter.imgs'],
+    package_data={
+        'qtdenter.imgs': [
+            "*.png"
+            ],
+        },
     requires=["pyqt"],
     package_dir={'qtdenter': 'src'},
     data_files=[ ("bin", ["src/qtdenter"]), ("share/pixmaps", ["src/qtdenter.png"]), ("share/applications", ["src/qtdenter.desktop"]),

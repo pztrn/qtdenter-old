@@ -42,7 +42,7 @@ class Context(QDialog):
         
         self.ui.context.setSortingEnabled(True)
         self.ui.context.sortByColumn(2, Qt.DescendingOrder)
-        for column in range(2, 5):
+        for column in range(2, 6):
             self.ui.context.setColumnHidden(column, True)
         self.ui.context.setColumnWidth(0, 65)
         self.ui.context.itemActivated.connect(self.reply_to_dent)
@@ -52,7 +52,7 @@ class Context(QDialog):
         self.list_handler = list_handler.List_Handler(self.callback)
         
         self.list_item = list_item.list_item()
-        self.list_handler.add_data("conversation", conversation)
+        self.list_handler.add_data("conversation", conversation, self.settings["server"])
         self.connect_buttons()
         
     def connect_buttons(self):
@@ -82,20 +82,20 @@ class Context(QDialog):
         self.like_buttons_mapper.mapped.connect(self.like_dent)
         self.dentid_buttons_mapper.mapped.connect(self.go_to_dent)
         
-    def callback(self, list_type, data):
+    def callback(self, dent_type, data, server):
         """
         List callback
         """
-        if list_type == "end":
+        if dent_type == "end":
             pass
         else:
-            self.add_dent(data)
+            self.add_dent(data, dent_type)
         
-    def add_dent(self, data):
+    def add_dent(self, data, dent_type):
         """
         Add dent to list widget
         """
-        item_data = self.list_item.process_item(data, self.settings["last_dent_id"])
+        item_data = self.list_item.process_item(data, self.settings["last_dent_id"], self.settings["user"], self.settings["server"], dent_type)
 
         item = item_data[0]
         avatar_widget = item_data[1]

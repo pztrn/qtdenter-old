@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'about.ui'
 #
-# Created: Sat Sep  8 09:10:30 2012
+# Created: Mon Sep 24 12:19:45 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,16 +76,18 @@ class Ui_Dialog(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'PT Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">QTDenter </span>is a simple identi.ca and other status.net-networks, written in PyQt and Python 2.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">QTDenter </span>is simple (yet powerful) identi.ca, status.net and friendica client, written in PyQt and Python 2.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog", "About", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'PT Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">There is one and only author - <a href=\"http://pztrn.ru/\"><span style=\" text-decoration: underline; color:#0000ff;\">Stanislav N. aka pztrn</span></a>. You can contact me in several ways:</p>\n"
-"<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">IRC - pztrn @ Freenode</li>\n"
-"<li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Jabber: <a href=\"xmpp:pztrn@pztrn.ru\"><span style=\" text-decoration: underline; color:#0000ff;\">pztrn@pztrn.ru</span></a></li>\n"
-"<li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">E-mail: same as jabber</li>\n"
-"<li style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Or thru <a href=\"https://github.com/pztrn/qtdenter/issues\"><span style=\" text-decoration: underline; color:#0000ff;\">the bugtracker</span></a></li></ul></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">IRC - pztrn @ Freenode</li>\n"
+"<li style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Jabber: <a href=\"xmpp:pztrn@pztrn.ru\"><span style=\" text-decoration: underline; color:#0000ff;\">pztrn@pztrn.ru</span></a></li>\n"
+"<li style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">E-mail: same as jabber</li>\n"
+"<li style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Thru <a href=\"https://github.com/pztrn/qtdenter/issues\"><span style=\" text-decoration: underline; color:#0000ff;\">the bugtracker</span></a></li>\n"
+"<li style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">With my <a href=\"http://status.pztrn.ru/\"><span style=\" text-decoration: underline; color:#0000ff;\">Status.Net</span></a> or <a href=\"https://friends.pztrn.ru/\"><span style=\" text-decoration: underline; color:#0000ff;\">Friendica</span></a> instances</li></ul>\n"
+"<p style=\" margin-top:5px; margin-bottom:5px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Everyone, who helps in development, listen on &quot;Thanks&quot; tab :-)</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Dialog", "Authors", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -8,7 +8,7 @@ class List_Handler(QThread):
     """
     This is a "data parser" thread - all retrieved data goes here, parsed,
     reparsed, refining, and sending back to main thread with callback help.
-    Callback will decide what to do, depending on list_type.
+    Callback will decide what to do, depending on dent_type.
     
     Parameters:
     @callback - callback for sending parsed data to main thread
@@ -18,11 +18,11 @@ class List_Handler(QThread):
         
         self.callback = callback
         
-    def add_data(self, list_type, data):
+    def add_data(self, dent_type, data, account):
         """
         Data parser. Opts:
         
-        @list_type - list type (timeline, mentions, direct)
+        @dent_type - list type (timeline, mentions, direct)
         @data - retrieved data
         """
         for item in data:
@@ -47,9 +47,9 @@ class List_Handler(QThread):
             
             self.download_avatar(item["user"]["profile_image_url"], item["user"]["screen_name"])
             
-            self.callback(list_type, item_data)
+            self.callback(dent_type, item_data, account)
         
-        self.callback("end", "")
+        self.callback("end", "", account)
         
     def download_avatar(self, avatar, name):
         """
@@ -69,7 +69,7 @@ class List_Handler(QThread):
                 f.write(data)
                 f.close()
         
-                self.callback("home_avatar", name)
+                self.callback("home_avatar", name, "")
         else:
             if "secure.gravatar.com" in avatar:
                 # Sometimes it gaining an application stuck.

@@ -74,6 +74,8 @@ class Denter_Form(QMainWindow):
         self._new_direct_messages = 0
         self._new_mentions = 0
         self._changed_credentials = False
+        self.filters = {}
+        self._filters_state = []
         
         # Set QTextCodec explicitly. Some disadvantages for rarely used
         # languages, but no problems for others.
@@ -149,6 +151,12 @@ class Denter_Form(QMainWindow):
             self.settings["player_string"] = "!listening to: $artist - $track #$player"
             self.settings["mpd_port"] = "6600"
             self.settings["mpd_host"] = "localhost"
+            
+        try:
+            self._filters_state = self.qsettings.value("filters_state").toString()
+            self._filters_state = self._filters_state.split(":")
+        except:
+            print "Failed to restore filters state"
 
         if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
             database.createDB()
@@ -217,6 +225,30 @@ class Denter_Form(QMainWindow):
         self.ui.toolBar.addWidget(spacerWidget)
         self.ui.toolBar.addWidget(self.time_updated_action)
         
+        # Setting icons
+        self.ui.timeline_btn.setIcon(QIcon("imgs/timeline.png"))
+        self.ui.mentions_btn.setIcon(QIcon("imgs/mentions.png"))
+        self.ui.directs_btn.setIcon(QIcon("imgs/directs.png"))
+        
+        # Adding accounts
+        self.ui.no_accounts_btn.hide()
+        
+        self.btn = QPushButton()
+        self.btn.setIcon(QIcon("imgs/identica.png"))
+        self.btn.setText(self.settings["server"])
+        
+        self.ui.accounts_layout.addWidget(self.btn)
+        
+        if "timeline" in self._filters_state:
+            self.ui.timeline_btn.setChecked(True)
+        if "mentions" in self._filters_state:
+            self.ui.mentions_btn.setChecked(True)
+        if "directs" in self._filters_state:
+            self.ui.directs_btn.setChecked(True)
+        
+        self.ui.timeline_btn.clicked.connect(self.change_filters)
+        self.ui.mentions_btn.clicked.connect(self.change_filters)
+        self.ui.directs_btn.clicked.connect(self.change_filters)
 
         # Defining list_handler instance
         self.list_handler = list_handler.List_Handler(callback=self.lists_callback)
@@ -224,27 +256,11 @@ class Denter_Form(QMainWindow):
         # Set some options to timeline list
         self.ui.timeline_list.setSortingEnabled(True)
         self.ui.timeline_list.sortByColumn(2, Qt.DescendingOrder)
-        for column in range(2, 5):
+        for column in range(2, 6):
             self.ui.timeline_list.setColumnHidden(column, True)
         self.ui.timeline_list.setColumnWidth(0, 65)
         self.ui.timeline_list.itemActivated.connect(self.reply_to_dent)
         self.ui.timeline_list.itemSelectionChanged.connect(self.change_item_read_state)
-        
-        # Set some options to mentions list
-        self.ui.mentions_list.setSortingEnabled(True)
-        self.ui.mentions_list.sortByColumn(2, Qt.DescendingOrder)
-        for column in range(2, 5):
-            self.ui.mentions_list.setColumnHidden(column, True)
-        self.ui.mentions_list.setColumnWidth(0, 65)
-        self.ui.mentions_list.itemActivated.connect(self.reply_to_dent)
-        
-        # Set some options to direct messages list
-        self.ui.dm_list.setSortingEnabled(True)
-        self.ui.dm_list.sortByColumn(2, Qt.DescendingOrder)
-        for column in range(2, 5):
-            self.ui.dm_list.setColumnHidden(column, True)
-        self.ui.dm_list.setColumnWidth(0, 65)
-        self.ui.dm_list.itemActivated.connect(self.reply_to_dent)
         
         # Defining list_item instance, that generates items for lists
         self.list_item = list_item.list_item()
@@ -290,15 +306,13 @@ class Denter_Form(QMainWindow):
         
         try:
             home_timeline = self.auth.get_home_timeline(opts)
-            self.list_handler.add_data("home", home_timeline)
+            self.list_handler.add_data("home", home_timeline, self.settings["server"])
         except:
             print "Can't get home timeline. WTF?"
         
         try:
-            mentions = self.auth.get_mentions(opts)
-            self.list_handler.add_data("mentions", mentions)
             mentions = self.auth.get_direct_messages(opts)
-            self.list_handler.add_data("direct_messages", mentions)
+            self.list_handler.add_data("direct_messages", mentions, self.settings["server"])
             if self.settings["remember_last_dent_id"] == "1":
                 root = self.ui.timeline_list.invisibleRootItem()
                 last_item = root.child(0)
@@ -306,7 +320,7 @@ class Denter_Form(QMainWindow):
                 self.qsettings.setValue("last_dent_id", dent_id)
             self.qsettings.sync()
         except:
-            print "Can't get mentions. WTF?"
+            print "Can't get direct messages. WTF?"
             
         try:
             # Connect buttons
@@ -364,11 +378,9 @@ class Denter_Form(QMainWindow):
                 "name"      : self.settings["user"]
                 }
         home_timeline = self.auth.get_home_timeline(opts)
-        self.list_handler.add_data("home", home_timeline)
-        mentions = self.auth.get_mentions(opts)
-        self.list_handler.add_data("mentions", mentions)
+        self.list_handler.add_data("home", home_timeline, self.settings["server"])
         mentions = self.auth.get_direct_messages(opts)
-        self.list_handler.add_data("direct_messages", mentions)
+        self.list_handler.add_data("direct_messages", mentions, self.settings["server"])
         if self.settings["remember_last_dent_id"] == "1":
             root = self.ui.timeline_list.invisibleRootItem()
             last_item = root.child(0)
@@ -420,20 +432,14 @@ class Denter_Form(QMainWindow):
         self.like_buttons_mapper.mapped.connect(self.like_dent)
         self.dentid_buttons_mapper.mapped.connect(self.go_to_dent)
             
-    def lists_callback(self, list_type, data):
+    def lists_callback(self, dent_type, data, account):
         """
-        Lists callback. Depending on "list_type" parameter, sending "data"
+        Lists callback. Depending on "dent_type" parameter, sending "data"
         to specified function, responsible for own list.
         """
-        if list_type == "home":
-            self.add_to_timeline_iterator(data)
-        elif list_type == "home_avatar":
+        if dent_type == "home_avatar":
             self.update_timeline_avatar(data)
-        elif list_type == "mentions":
-            self.add_to_mentions_iterator(data)
-        elif list_type == "direct_messages":
-            self.add_to_dm_iterator(data)
-        elif list_type == "end":
+        elif dent_type == "end":
             curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             self.time_updated_action.setText("<b>Last updated on: {0}</b>".format(curtime))
             
@@ -445,46 +451,26 @@ class Denter_Form(QMainWindow):
                 notify.add_action("clicked","Show QTDenter", self.show_window, None)
                 notify.show()
                 self._new_direct_messages = 0
+        else:
+            self.add_to_timeline_iterator(data, account, dent_type)
             
             
-    def add_to_timeline_iterator(self, data):
+    def add_to_timeline_iterator(self, data, account, dent_type):
         """
         This function called multiple times, until "data" flows in.
         """
         if data["id"] not in self.inserted_timeline_dents_ids:
             self.inserted_timeline_dents_ids.append(data["id"])
-            self.add_dent_to_widget("timeline", data)
+            self.add_dent_to_widget(dent_type, data, account)
             self._new_direct_messages += 1
         else:
             pass
 
-    def add_to_mentions_iterator(self, data):
+    def add_dent_to_widget(self, dent_type, data, account):
         """
-        This function called multiple times, until "data" flows in.
+        Add dents to widget. Widget specified in "dent_type" option
         """
-        if data["id"] not in self.inserted_mentions_dents_ids:
-            self.inserted_mentions_dents_ids.append(data["id"])
-            self.add_dent_to_widget("mentions", data)
-            self._new_mentions += 1
-        else:
-            pass
-            
-    def add_to_dm_iterator(self, data):
-        """
-        This function called multiple times, until "data" flows in.
-        """
-        if data["id"] not in self.inserted_mentions_dents_ids:
-            self.inserted_mentions_dents_ids.append(data["id"])
-            self.add_dent_to_widget("direct_messages", data)
-            self._new_mentions += 1
-        else:
-            pass
-
-    def add_dent_to_widget(self, list_type, data):
-        """
-        Add dents to widget. Widget specified in "list_type" option
-        """
-        item_data = self.list_item.process_item(data, self.settings["last_dent_id"])
+        item_data = self.list_item.process_item(data, self.settings["last_dent_id"], self.settings["user"], account, dent_type)
         
         item = item_data[0]
         avatar_widget = item_data[1]
@@ -516,23 +502,27 @@ class Denter_Form(QMainWindow):
             redent_button.hide()
         elif data["nickname"] != self.settings["user"] and data["retweeted"]:
             redent_button.show()
-        
-        # Defaulting to timelines list. If list_type is not "home":
-        # sets approriate widget.
-        list_widget = self.ui.timeline_list
-        if list_type == "mentions":
-            list_widget = self.ui.mentions_list
-        if list_type == "direct_messages":
-            list_widget = self.ui.dm_list
             
         read_state = item.text(2).split(":")[3]
+        dent_type = item.text(5).split(":")[1]
+        
+        if dent_type == "home":
+            item.setBackground(0, QColor(255, 255, 200, 0))
+            item.setBackground(1, QColor(255, 255, 200, 0))            
+        if dent_type == "mentions":
+            item.setBackground(0, QColor(150, 150, 255, 100))
+            item.setBackground(1, QColor(150, 150, 255, 100))
+        if dent_type == "directs":
+            item.setBackground(0, QColor(255, 150, 150, 100))
+            item.setBackground(1, QColor(255, 150, 150, 100))
+        
         if read_state == "not":
             item.setBackground(0, QColor(200, 255, 200, 255))
             item.setBackground(1, QColor(200, 255, 200, 255))
         
-        list_widget.addTopLevelItem(item)
-        list_widget.setItemWidget(item, 0, avatar_widget)
-        list_widget.setItemWidget(item, 1, post_widget)
+        self.ui.timeline_list.addTopLevelItem(item)
+        self.ui.timeline_list.setItemWidget(item, 0, avatar_widget)
+        self.ui.timeline_list.setItemWidget(item, 1, post_widget)
         
     def update_timeline_avatar(self, name):
         """
@@ -545,22 +535,15 @@ class Denter_Form(QMainWindow):
         """
         Like dent button callback
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-        
         # Search for item that contain pressed "Like" button, get dent id,
         # and send a request to connector for dent like.
         try:
-            root = list_widget.invisibleRootItem()
+            root = self.ui.timeline_list.invisibleRootItem()
             count = root.childCount()
             for index in range(count):
                 item = root.child(index)
                 if item.text(2).split(":")[0] == str(dent_id):
-                    btn = list_widget.findChild(QPushButton, "like_button_" + str(dent_id))
+                    btn = self.ui.timeline_list.findChild(QPushButton, "like_button_" + str(dent_id))
                     btn.setText("...")
                     if item.text(3) == "not":
                         data = self.auth.favoritize_dent(dent_id, VERSION)
@@ -585,17 +568,10 @@ class Denter_Form(QMainWindow):
         """
         Redent dent button callback
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-        
         # Search for item that contain pressed "Redent" button, get dent id,
         # and send a request to connector for dent redenting.
         try:
-            root = list_widget.invisibleRootItem()
+            root = self.ui.timeline_list.invisibleRootItem()
             count = root.childCount()
             for index in range(count):
                 item = root.child(index)
@@ -603,7 +579,7 @@ class Denter_Form(QMainWindow):
                     print "FOUND!"
                     data = self.auth.redent_dent(dent_id, VERSION)
                     if data != "FAIL":
-                        btn = list_widget.findChild(QPushButton, "redent_button_" + str(dent_id))
+                        btn = self.ui.timeline_list.findChild(QPushButton, "redent_button_" + str(dent_id))
                         btn.hide()
                         
                     break
@@ -614,15 +590,10 @@ class Denter_Form(QMainWindow):
         """
         Delete dent button callback
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-
         # Search for item that contain pressed "Delete" button, get dent id,
         # and send a request to connector for dent deletion.
         try:
-            root = list_widget.invisibleRootItem()
+            root = self.ui.timeline_list.invisibleRootItem()
             count = root.childCount()
             for index in range(count):
                 item = root.child(index)
@@ -630,8 +601,8 @@ class Denter_Form(QMainWindow):
                     data = self.auth.delete_dent(dent_id)
                     print data
                     if data == "OK":
-                        index = list_widget.indexOfTopLevelItem(item)
-                        list_widget.takeTopLevelItem(index)
+                        index = self.ui.timeline_list.indexOfTopLevelItem(item)
+                        self.ui.timeline_list.takeTopLevelItem(index)
                     break
         except:
             QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
@@ -658,19 +629,12 @@ class Denter_Form(QMainWindow):
         """
         Reply to dent (item double-click) callback
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-
         # Search for item that contain pressed "Reply" button, get dent id,
         # and show post dent dialog.            
         try:
-            dent_id = list_widget.currentItem().text(2).split(":")[0]
-            to_username = list_widget.currentItem().text(2).split(":")[1]
-            dent_text = list_widget.currentItem().text(4)
+            dent_id = self.ui.timeline_list.currentItem().text(2).split(":")[0]
+            to_username = self.ui.timeline_list.currentItem().text(2).split(":")[1]
+            dent_text = self.ui.timeline_list.currentItem().text(4)
             params = {}
             params["type"] = "reply"
             params["reply_to_id"] = dent_id
@@ -715,66 +679,46 @@ class Denter_Form(QMainWindow):
         """
         Callback for ID button
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
+        root = self.ui.timeline_list.invisibleRootItem()
+        count = root.childCount()
+        for index in range(count):
+            item = root.child(index)
+            if item.text(2).split(":")[0] == str(dent_id):
+                server_address = self.settings["server"]
+                if self.settings["useSecureConnection"] == 1:
+                    server_address = "https://" + server_address
+                else:
+                    server_address = "http://" + server_address
         
-        try:
-            root = list_widget.invisibleRootItem()
-            count = root.childCount()
-            for index in range(count):
-                item = root.child(index)
-                if item.text(2).split(":")[0] == str(dent_id):
-                    server_address = self.settings["server"]
-                    if self.settings["useSecureConnection"] == 1:
-                        server_address = "https://" + server_address
-                    else:
-                        server_address = "http://" + server_address
-        
-                    QDesktopServices.openUrl(QUrl(server_address + "/notice/" + str(dent_id)))
-        except:
-            QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
+                QDesktopServices.openUrl(QUrl(server_address + "/notice/" + str(dent_id)))
             
     def show_context(self, conversation_id):
         """
         Callback for "Context" button
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-            
-        #try:
         contextD = context.Context(self.auth, conversation_id, self.settings, VERSION)
         contextD.exec_()
-        #except:
-        #    QMessageBox.critical(self, "QTDenter - Choose dent first!", "You have to choose dent")
         
     def change_item_read_state(self):
         """
         Change item state from 'not_read' to 'read'
         """
-        if self.ui.tabWidget.currentIndex() == 0:
-            list_widget = self.ui.timeline_list
-        elif self.ui.tabWidget.currentIndex() == 1:
-            list_widget = self.ui.mentions_list
-        elif self.ui.tabWidget.currentIndex() == 2:
-            list_widget = self.ui.dm_list
-            
-        item = list_widget.currentItem()
-        
-        print item.text(2)
+        item = self.ui.timeline_list.currentItem()
             
         read_state = item.text(2).split(":")[3]
+        dent_type = item.text(5).split(":")[1]
         if read_state == "not":
             item_text_joined = QString()
-            item.setBackground(0, QColor(200, 255, 200, 0))
-            item.setBackground(1, QColor(200, 255, 200, 0))
+            
+            if dent_type == "home":
+                item.setBackground(0, QColor(255, 255, 200, 0))
+                item.setBackground(1, QColor(255, 255, 200, 0))            
+            if dent_type == "mentions":
+                item.setBackground(0, QColor(150, 150, 255, 100))
+                item.setBackground(1, QColor(150, 150, 255, 100))
+            if dent_type == "directs":
+                item.setBackground(0, QColor(255, 150, 150, 100))
+                item.setBackground(1, QColor(255, 150, 150, 100))
             
             item_text = item.text(2).split(":")
             item_text[3] = "read"
@@ -785,26 +729,87 @@ class Denter_Form(QMainWindow):
         """
         Mark all unread dents as read
         """
-        lists = [self.ui.timeline_list, self.ui.mentions_list, self.ui.dm_list]
-
-        for list_widget in lists:
-            root = list_widget.invisibleRootItem()
-            count = root.childCount()
-            for index in range(count):
-                item = root.child(index)
-                try:
-                    read_state = item.text(2).split(":")[3]
-                    if read_state == "not":
-                        item_text_joined = QString()
-                        item.setBackground(0, QColor(200, 255, 200, 0))
-                        item.setBackground(1, QColor(200, 255, 200, 0))
+        root = self.ui.timeline_list.invisibleRootItem()
+        count = root.childCount()
+        for index in range(count):
+            item = root.child(index)
+            try:
+                read_state = item.text(2).split(":")[3]
+                if read_state == "not":
+                    item_text_joined = QString()
+                    if dent_type == "home":
+                        item.setBackground(0, QColor(255, 255, 200, 100))
+                        item.setBackground(1, QColor(255, 255, 200, 100))            
+                    if dent_type == "mentions":
+                        item.setBackground(0, QColor(150, 150, 255, 100))
+                        item.setBackground(1, QColor(150, 150, 255, 100))
+                    if dent_type == "directs":
+                        item.setBackground(0, QColor(255, 150, 150, 100))
+                        item.setBackground(1, QColor(255, 150, 150, 100))
             
-                        item_text = item.text(2).split(":")
-                        item_text[3] = "read"
-                        item_text_joined = item_text.join(":")
-                        item.setText(2, item_text_joined)
-                except:
-                    print "Failed to change state of item id", item.text(2).split(":")[0]
+                    item_text = item.text(2).split(":")
+                    item_text[3] = "read"
+                    item_text_joined = item_text.join(":")
+                    item.setText(2, item_text_joined)
+            except:
+                print "Failed to change state of item id", item.text(2).split(":")[0]
+                
+    def change_filters(self):
+        """
+        Change filters state and resort dents list
+        """
+        if self.ui.timeline_btn.isChecked():
+            self.filters["home"] = True
+        else:
+            self.filters["home"] = False
+        
+        if self.ui.mentions_btn.isChecked():
+            self.filters["mentions"] = True
+        else:
+            self.filters["mentions"] = False
+            
+        if self.ui.directs_btn.isChecked():
+            self.filters["directs"] = True
+        else:
+            self.filters["directs"] = False
+            
+        self._filters_state = []
+        if self.ui.timeline_btn.isChecked():
+            self._filters_state.append("timeline")
+        if self.ui.mentions_btn.isChecked():
+            self._filters_state.append("mentions")
+        if self.ui.directs_btn.isChecked():
+            self._filters_state.append("directs")
+            
+        print self._filters_state       
+
+        self.resort_dents_list()
+        
+    def resort_dents_list(self):
+        """
+        Re-sort dents list after filters state change
+        """
+        sort_string = ""
+        
+        if self.filters["home"]:
+            sort_string += ":home:"
+        if self.filters["mentions"]:
+            sort_string += ":mentions:"
+        if self.filters["directs"]:
+            sort_string += ":directs:"
+        
+        filters_list = sort_string.split(":")
+        root = self.ui.timeline_list.invisibleRootItem()
+        count = root.childCount()
+        for index in range(count):
+            item = root.child(index)
+            item_type = item.text(5).split(":")[1]
+            if item_type not in filters_list:
+                item.setHidden(True)
+            else:
+                item.setHidden(False)
+            
+            
 
     def spam_music(self):
         """
@@ -841,12 +846,6 @@ class Denter_Form(QMainWindow):
                     }
             newpostD = new_post.New_Post(self.settings["messageLength"], params, self.new_post_callback)
             newpostD.exec_()
-    
-    def set_current_item(self, item, column):
-        """
-        Currently does nothing
-        """
-        print item, column
 
     def check_for_visibility(self):
         """
@@ -954,11 +953,15 @@ class Denter_Form(QMainWindow):
             self.qsettings.setValue("mpd_port", self.settings["mpd_port"])
             self.qsettings.setValue("state", self.saveState())
             self.qsettings.setValue("geometry", self.saveGeometry())
+            self.qsettings.setValue("filters_state", self._filters_state.join(":"))
             if self.settings["remember_last_dent_id"] == "1":
                 root = self.ui.timeline_list.invisibleRootItem()
                 last_item = root.child(0)
                 dent_id = last_item.text(2).split(":")[0]
                 self.qsettings.setValue("last_dent_id", dent_id)
+            
+            # Filters buttons checkstates
+            
         else:
             event.ignore()
 

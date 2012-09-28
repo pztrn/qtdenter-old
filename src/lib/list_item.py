@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
 
 import os
-from PyQt4.QtCore import QString, QSize, Qt
-from PyQt4.QtGui import QTreeWidgetItem, QPushButton, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem
+from PyQt4.QtCore import QString, QSize, Qt, QRect
+from PyQt4.QtGui import QTreeWidgetItem, QPushButton, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem, QStyledItemDelegate
 
 class list_item:
     """
@@ -11,20 +11,22 @@ class list_item:
     
     Item Structure:
     
-    ===========================================================================================
-    | Avatar       | Nickname (with arror and  | Buttons: redent, | Dent ID,  | Favoritized
-    | (QLabel)     | nickname a person to whom | context,         | nickname, | state, redent
-    | (optionally  | replying), dent text.     | source.          | conv id,  | state
-    |              |                           |                  | read state| (hidden)
-    | dent destroy |                           |                  | (hidden)  | 
-    | btn)         |                           |                  |           |
+    =======================================================================================================
+    | Avatar       | Nickname (with arror and  | Buttons: redent, | Dent ID,  | Favoritized   | server   |
+    | (QLabel)     | nickname a person to whom | context,         | nickname, | state, redent | name,     |
+    | (optionally  | replying), dent text.     | source.          | conv id,  | state         | dent type |
+    | dent destroy |                           |                  | read state| (hidden)      | (hidden)  |
+    | btn)         |                           |                  | (hidden)  |               |           |
+    =======================================================================================================
     """
     def __init__(self):
         pass
         
-    def process_item(self, data, last_dent_id):
+    def process_item(self, data, last_dent_id, username, server, dent_type):
         if data["in_reply_to_screen_name"]:
             nickname = data["nickname"] + " " + u"\u2794" + " " + data["in_reply_to_screen_name"]
+            if data["in_reply_to_screen_name"] == username:
+                dent_type = "mentions"
 
             context_button = QPushButton()
             context_button.setFixedHeight(20)
@@ -48,12 +50,11 @@ class list_item:
         post_data.setAlignment(Qt.AlignTop)
         post_data.setOpenExternalLinks(True)
         post_height = post_data.sizeHint().height()
-        #print post_data.width(), post_height
         post_data.setMinimumWidth(300)
         post_data.setMaximumWidth(6000)
         post_data.setMaximumHeight(post_height)
         post_data.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-
+        
         post_data_layout = QVBoxLayout()
         post_data_layout.addWidget(post_data)
         post_data_layout.setContentsMargins(3, 0, 0, 0)
@@ -68,6 +69,9 @@ class list_item:
         avatar_data.setMaximumSize(48, 48)
         avatar_data.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.MinimumExpanding)
         
+        #reply_button = QPushButton()
+        #reply_button.setText("Reply")
+        
         destroy_button = QPushButton()
         destroy_button.setText("Delete")
         destroy_button.setFixedHeight(20)
@@ -75,6 +79,18 @@ class list_item:
         destroy_button.setObjectName("destroy_button_" + str(data["id"]))
         destroy_button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         
+        spacer = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
+        
+        post_avatar_layout = QVBoxLayout()
+        post_avatar_layout.addWidget(avatar_data)
+        #post_avatar_layout.addWidget(reply_button)
+        post_avatar_layout.addWidget(destroy_button)
+        post_avatar_layout.addItem(spacer)
+        
+        post_avatar_widget = QWidget()
+        post_avatar_widget.setLayout(post_avatar_layout)
+        
+        # Like button
         like_button = QPushButton()
         if data["in_favorites"]:
             like_button.setText("X")
@@ -100,17 +116,6 @@ class list_item:
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons_layout)
         
-        spacer = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
-        spacer2 = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
-        
-        post_avatar_layout = QVBoxLayout()
-        post_avatar_layout.addWidget(avatar_data)
-        post_avatar_layout.addWidget(destroy_button)
-        post_avatar_layout.addItem(spacer)
-        
-        post_avatar_widget = QWidget()
-        post_avatar_widget.setLayout(post_avatar_layout)
-        
         post_data_widget = QWidget()
         post_data_widget.setLayout(post_data_layout)
         
@@ -125,6 +130,8 @@ class list_item:
         source.setText("<span style='font-size:8pt;'>from {0}".format(data["source"]))
         source.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.MinimumExpanding)
         source.setWordWrap(True)
+        
+        spacer2 = QSpacerItem(0, 1, QSizePolicy.Fixed, QSizePolicy.Expanding)
         
         post_info_layout = QVBoxLayout()
         post_info_layout.addWidget(dentid_button)
@@ -157,5 +164,6 @@ class list_item:
             item.setText(3, "not")
             
         item.setText(4, data["text"])
+        item.setText(5, server + ":" + dent_type)
         
         return (item, post_avatar_widget, post_widget)
