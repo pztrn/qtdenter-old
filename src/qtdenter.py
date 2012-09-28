@@ -159,9 +159,6 @@ class Denter_Form(QMainWindow):
         except:
             print "Failed to restore filters state"
 
-        if not os.path.exists(os.path.expanduser("~/.config/qtdenter/data.sqlite")):
-            database.createDB()
-
         # Connecting menu actions
         self.ui.action_Options.triggered.connect(self.show_options_dialog)
         self.ui.action_Exit.triggered.connect(self.close_from_menu)
@@ -235,7 +232,7 @@ class Denter_Form(QMainWindow):
         self.ui.no_accounts_btn.hide()
         
         self.btn = QPushButton()
-        self.btn.setIcon(QIcon("imgs/identica.png"))
+        self.btn.setIcon(QIcon(common.QTDENTER_PATH + "/imgs/identica.png"))
         self.btn.setText(self.settings["server"])
         
         self.ui.accounts_layout.addWidget(self.btn)
