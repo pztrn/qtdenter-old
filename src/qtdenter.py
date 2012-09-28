@@ -84,12 +84,12 @@ class Denter_Form(QMainWindow):
         
         # Tray icon
         self.icon = {}
-        if not os.path.exists(common.QTDENTER_PATH + "/ui/imgs/trayicon.png"):
+        if not os.path.exists(common.QTDENTER_PATH + "/imgs/qtdenter.png"):
             self.icon["qicon"] = QIcon("/usr/share/pixmaps/qtdenter.png")
             self.icon["path"] = "/usr/share/pixmaps/qtdenter.png"
         else:
-            self.icon["qicon"] = QIcon(common.QTDENTER_PATH + "/ui/imgs/trayicon.png")
-            self.icon["path"] = common.QTDENTER_PATH + "/ui/imgs/trayicon.png"
+            self.icon["qicon"] = QIcon(common.QTDENTER_PATH + "/imgs/qtdenter.png")
+            self.icon["path"] = common.QTDENTER_PATH + "/ui/imgs/qtdenter.png"
             
         self.trayIcon = QSystemTrayIcon(self.icon["qicon"], self)
         self.trayIcon.setVisible(True)
@@ -227,9 +227,9 @@ class Denter_Form(QMainWindow):
         self.ui.toolBar.addWidget(self.time_updated_action)
         
         # Setting icons
-        self.ui.timeline_btn.setIcon(QIcon("imgs/timeline.png"))
-        self.ui.mentions_btn.setIcon(QIcon("imgs/mentions.png"))
-        self.ui.directs_btn.setIcon(QIcon("imgs/directs.png"))
+        self.ui.timeline_btn.setIcon(QIcon(common.QTDENTER_PATH + "/imgs/timeline.png"))
+        self.ui.mentions_btn.setIcon(QIcon(common.QTDENTER_PATH + "/imgs/mentions.png"))
+        self.ui.directs_btn.setIcon(QIcon(common.QTDENTER_PATH + "/imgs/directs.png"))
         
         # Adding accounts
         self.ui.no_accounts_btn.hide()
