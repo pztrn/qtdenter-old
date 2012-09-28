@@ -75,7 +75,8 @@ class Denter_Form(QMainWindow):
         self._new_mentions = 0
         self._changed_credentials = False
         self.filters = {}
-        self._filters_state = []
+        # Set default filters
+        self._filters_state = ["timeline", "mentions"]
         
         # Set QTextCodec explicitly. Some disadvantages for rarely used
         # languages, but no problems for others.
