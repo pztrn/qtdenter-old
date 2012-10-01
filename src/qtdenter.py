@@ -733,6 +733,7 @@ class Denter_Form(QMainWindow):
             item = root.child(index)
             try:
                 read_state = item.text(2).split(":")[3]
+                dent_type = item.text(5).split(":")[1]
                 if read_state == "not":
                     item_text_joined = QString()
                     if dent_type == "home":

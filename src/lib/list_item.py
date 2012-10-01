@@ -39,6 +39,7 @@ class list_item:
             nickname = data["nickname"]
             
         read_state = "not"
+        #if int(data["id"]) < int(last_dent_id):
         if int(data["id"]) < int(last_dent_id) or int(data["id"]) == int(last_dent_id):
             read_state = "read"
             

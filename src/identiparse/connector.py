@@ -58,7 +58,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "/favorites/destroy/{0}.json".format(dent_id))
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "DEFAVORITIZE REQUEST FORMED"
         
         try:
@@ -81,7 +81,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "/favorites/create/{0}.json".format(dent_id))
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "FAVORITIZE REQUEST FORMED"
         
         #try:
@@ -108,7 +108,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "statuses/update.json", encoded_data)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "REQUEST FORMED"
         
         try:
@@ -158,7 +158,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "statuses/retweet/{0}.json".format(dent_id), encoded_data)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "REDENT REQUEST FORMED"
         
         try:
@@ -184,7 +184,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "direct_messages/new.json", encoded_data)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "REQUEST FORMED"
         
         try:
@@ -210,7 +210,7 @@ class Requester():
         request = urllib2.Request(self._api_url + "statuses/update.json", encoded_data)
         base64string = base64.encodestring('%s:%s' % (self._username, self._password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        request.add_header('User-agent', 'QTDenter ' + version + ' (http://www.github.com/pztrn/qtdenter)')
+        request.add_header('User-agent', 'QTDenter (http://www.github.com/pztrn/qtdenter)')
         print "REQUEST FORMED"
         
         try:
